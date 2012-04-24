@@ -3,6 +3,7 @@ package dominoes.server;
 public class DominoeChip {
 	private int chip[];
 	private int id;
+	private int isAssigned;
 
 	public DominoeChip(int x, int y, int Id)
 	{
@@ -10,6 +11,7 @@ public class DominoeChip {
 		chip[0] = x;
 		chip[1] = y;
 		id = Id;
+		isAssigned = 0;
 	}
 	public int getId ()
 	{
@@ -32,6 +34,18 @@ public class DominoeChip {
 	public int getChip1()
 	{
 		return chip[1];
+	}
+	public void setAssigned()
+	{
+		isAssigned=1;
+	}
+	public int getAssigned()
+	{
+		return isAssigned;
+	}
+	public void pintChip ()
+	{
+		System.out.println("Num_0 : "+ chip[0] + " Num_1 : " + chip[1] );
 	}
 	
 }
