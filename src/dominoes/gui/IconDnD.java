@@ -15,8 +15,8 @@ import javax.swing.TransferHandler;
 
 
 public class IconDnD extends JFrame {
-
-
+	public static JLabel label1;
+	public static JLabel label2; 
     public IconDnD() {
 
         setTitle("Icon Drag & Drop");
@@ -31,8 +31,8 @@ public class IconDnD extends JFrame {
         JButton button = new JButton(icon2);
         button.setFocusable(false);
 
-        JLabel label1  = new JLabel(icon1, JLabel.CENTER);
-        JLabel label2  = new JLabel(icon3, JLabel.CENTER);
+        label1  = new JLabel(icon1, JLabel.CENTER);
+        label2  = new JLabel(icon3, JLabel.CENTER);
 
         MouseListener listener = new DragMouseAdapter();
         label1.addMouseListener(listener);
@@ -42,7 +42,7 @@ public class IconDnD extends JFrame {
         button.setTransferHandler(new TransferHandler("icon"));
         label2.setTransferHandler(new TransferHandler("icon"));
 
-        label2.getIcon();
+     //   label2.getIcon();
         panel.add(label1);
         panel.add(button);
         panel.add(label2);
@@ -56,17 +56,19 @@ public class IconDnD extends JFrame {
 
     class DragMouseAdapter extends MouseAdapter {
         public void mousePressed(MouseEvent e) {
+        
             JComponent c = (JComponent) e.getSource();
+           
             TransferHandler handler = c.getTransferHandler();
             handler.exportAsDrag(c, e, TransferHandler.COPY);
+       //     label1.setVisible(false);
 //            c.getParent().remove(c);
 //            validate(); 
         }
         
         public void mouseReleased(MouseEvent e) {
             JComponent c = (JComponent) e.getSource();
-            c.getParent().remove(c);
-            validate(); 
+             System.out.println("lo suelta");
         }
     }
 
