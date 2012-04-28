@@ -1,15 +1,16 @@
 package dominoes.server;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Stack;
 
 
 public class Server {
 
 	public static ArrayList <DominoeChip> Dominoes ;
+	public static int DominoesAssigned = 0;
 	public static Stack<DominoeChip> Track[];
 	public static Object lock = new Object();
 	public static Object lockTrack = new Object();
+	public static int initialChip = -1;
 
 
 	public int maxPlayers;
@@ -24,6 +25,45 @@ public class Server {
 	public void setMaxPlayers(int players)
 	{
 		maxPlayers = players;
+	}
+	
+	public static int getFreeChip (int playerId)
+	{
+		//int chip = -1;
+		int randomNumber = -1;
+		
+		synchronized (Server.lock)
+		{
+			if (DominoesAssigned >= Dominoes.size())
+			{
+				System.out.println ("ThreadID " + Thread.currentThread().getId() + " chips are fully assigned.. nothing to do ");
+			}
+			else
+			{
+				while (true)
+				{
+					randomNumber = (int) (Math.random() * Dominoes.size());
+					System.out.println ("ThreadID " + Thread.currentThread().getId() + "generateDominoes : random number " + randomNumber);
+		
+					//
+					// first check if the chip has not been assigned to another player
+					if (Dominoes.get(randomNumber).getAssigned()==0)
+					{
+						Dominoes.get(randomNumber).setAssigned();
+						DominoesAssigned++;
+						Dominoes.get(randomNumber).setPlayer(playerId);
+						break;
+						
+					}
+					else
+					{
+						System.out.println ("ThreadID " + Thread.currentThread().getId() + " chip already assigned .. get next one");
+		
+					}
+				}
+			}
+		}
+		return randomNumber;
 	}
 	//
 	// This function will generate a RANDOM set of chips per player
@@ -44,6 +84,7 @@ public class Server {
 				if (Dominoes.get(randomNumber).getAssigned()==0)
 				{
 					Dominoes.get(randomNumber).setAssigned();
+					DominoesAssigned++;
 					Dominoes.get(randomNumber).setPlayer(playerId);
 					DominoesPlayer.add(randomNumber);
 					
@@ -278,13 +319,24 @@ public class Server {
 		private int idPlayer;
 		private String player;
 		private int isReadyToStart ;
+		private boolean moveDone;
 		
 	
 		public Server_player (int id)
 		{
 			idPlayer = id;
 			isReadyToStart = 0;
+			moveDone = false;
 		}
+		public void setMoveDone (boolean move)
+		{
+			moveDone = move;
+		}
+		public boolean getMoveDone()
+		{
+			return moveDone;
+		}
+		
 		public int getIsReadyToStart()
 		{
 			return isReadyToStart;
@@ -357,29 +409,105 @@ public class Server {
 					}
 				}
 				
-				System.out.println ("ThreadID " + Thread.currentThread().getId() + "   Now is my turn... lets communicate with my player ");
+				System.out.println ("ThreadID " + Thread.currentThread().getId() + "   Now is my turn... Size of my chips " +DominoesPlayer.size() +" lets communicate with my player ");
 				
 				//
-				// 1 . Communicate player saying .. "it's your turn"
+				// 0.5 .. if the player has the initial chip.. he does not have any option at all
 				//
-				// 2. Wait for their chip...or empty
-				//
-				// 3. Validate chip... needs to follow the rules
-				//
-				DominoeChip playerChip = null;
-				int  trackValue  = Server.getValueInTrack(idPlayer);
-				
-				
-				
-				// 4.  Three options
-				///    - the chip is "good" .. now just wait
-				////   - is not good, request a new one
-				//     - is empty... then send a new chip 
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				if ( DominoesPlayer.contains(Server.initialChip) )
+				{
+					System.out.println ("ThreadID " + Thread.currentThread().getId() + "  This is the first move with the initial chip.. ");
+					int deleteChip = DominoesPlayer.indexOf(initialChip);
+					DominoesPlayer.remove(deleteChip);
 				}
+				else 
+				{	
+					int z = 0;
+					//
+					// 1 . Communicate player saying .. "it's your turn"
+					//
+					// 2. Wait for their chip...or empty
+					//
+					// 3. Validate chip... needs to follow the rules
+					//
+					DominoeChip playerChip = null;
+					int  trackValue  = Server.getValueInTrack(idPlayer);
+					
+					System.out.println ("ThreadID " + Thread.currentThread().getId() + "  value to find " + trackValue);
+	
+					//RJUA
+					// this is just for testing..  delete it on the final version
+					// ****************************************************
+					boolean foundChip = false;
+					for ( z = 0 ; z < DominoesPlayer.size(); z++)
+					{
+						int domPlayer = DominoesPlayer.get(z);
+						
+						synchronized (Server.lock)
+						{
+							playerChip = Dominoes.get(domPlayer);
+							synchronized (Server.lockTrack)
+							{
+								if (playerChip.getChip0() == trackValue)
+								{
+									
+										System.out.println ("ThreadID " + Thread.currentThread().getId() + "  found the value in chip[0] .. idChip" + playerChip.getId() + " value "+playerChip.getChip0() +"_"+playerChip.getChip1());
+										foundChip = true;
+										break;
+										
+								}// if
+								else if (playerChip.getChip1() == trackValue)
+								{
+									
+									System.out.println ("ThreadID " + Thread.currentThread().getId() + "  found the value in chip[1] .. idChip" + playerChip.getId() + " value "+playerChip.getChip0() +"_"+playerChip.getChip1());
+									playerChip.setShifted(1);
+									foundChip = true;
+									break;
+								}
+								else
+								{
+									System.out.println ("ThreadID " + Thread.currentThread().getId() + "  This chip does not help us at all.. get the next one !!");
+	
+								}
+									
+							}// synchronized server.LockTrack
+							
+						}// synchronized server.lock
+					}// for per user
+					if (foundChip)
+					{
+						System.out.println ("ThreadID " + Thread.currentThread().getId() + "  remove chip from player's list.. but add it to the track one ");
+
+						Server.Track[idPlayer].push(playerChip);
+						DominoesPlayer.remove(z);
+
+	
+					}
+					else
+					{
+						System.out.println ("ThreadID " + Thread.currentThread().getId() + "  It does not have any chips.. request one more ");
+						int returnFreeChip = getFreeChip (idPlayer); 
+						if (returnFreeChip >= 0)
+						{
+							DominoesPlayer.add(returnFreeChip);
+						}
+					}
+					
+					/////***************************************
+					
+					// 4.  Three options
+					///    - the chip is "good" .. now just wait
+					////   - is not good, request a new one
+					//     - is empty... then send a new chip 
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				System.out.println ("ThreadID " + Thread.currentThread().getId() + "   move done  .. ");
+				moveDone = true;
+	
 			}// while true loop
 		}// function run 
 		
@@ -390,7 +518,7 @@ public class Server {
 	 */
 	public static void main(String[] args) {
 
-		int maxPlayers = 2;
+		int maxPlayers = 3;
 		Server server = new Server();
 		server.generateInitalSetDominoes(6);
 		server.setMaxPlayers(maxPlayers);
@@ -487,28 +615,45 @@ public class Server {
 		int playerMove = server.getPlayerWithChip(initialChip);
 		DominoeChip initChip = server.getInitialChip(initialChip);
 		
+		server.initialChip = initialChip;
 		server.setChipInAllTracks(initChip);
 		//int playerMove = -1;
 		
-		server.printAllTracks();
+		//server.printAllTracks();
 		boolean isPlaying = true;
+		boolean flag = false;
 		
 		while (isPlaying)
 		{
+			System.out.println ("ThreadID " + Thread.currentThread().getId() + " It's time for player " +playerMove + " to play " );
+
 			synchronized (players[playerMove])
 			{
+				flag = false;
 				players[playerMove].notify();
-				
-				try {
-					System.out.println ("ThreadID " + Thread.currentThread().getId() + " main thread will wait ");
-
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				
-				playerMove = server.getNextPlayer(playerMove);
 			}
+				while (!flag)
+				{
+					
+					
+					try {
+						System.out.println ("ThreadID " + Thread.currentThread().getId() + " main thread will wait ");
+	
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					
+					synchronized (players[playerMove])
+					{
+						flag = players[playerMove].getMoveDone();
+						System.out.println ("ThreadID " + Thread.currentThread().getId() + " Flag value " + flag);
+					}
+				}
+				playerMove = server.getNextPlayer(playerMove);
+
+			//}
+
 			
 		}
 		
