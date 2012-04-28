@@ -56,11 +56,15 @@ class Connection extends Thread {
 			String data="";
 			while (true){
 				data = in.readUTF();	 // read a line of data from the stream
-				System.out.println("Recibe mensaje");
+				System.out.println("Subscription received");
 				String reply="initGame_"+ turnPlayer+"_"+ totalPlayers+"_"+ chipsPlayer+"_"+"4";
 				out.writeUTF(reply);
-				for(int pTurn=0; pTurn<6; pTurn++ ){
-					String playMsj="player"+pTurn+"_"+ chip+pTurn;
+				Thread.sleep(100);
+				String playMsj="player"+0+"_"+ 12;
+				out.writeUTF(playMsj);
+				for(int pTurn=1; pTurn<totalPlayers; pTurn++ )
+				{
+					playMsj="player"+pTurn+"_"+ (chip+pTurn);
 					out.writeUTF(playMsj);
 				}
 				reply="ping"+turnPlayer;
@@ -76,13 +80,16 @@ class Connection extends Thread {
 			
 				data = in.readUTF();
 				out.writeUTF(TestServer.OKchip);
-				String playMsj="player"+turnPlayer+"_"+ data.split("_")[1];
+				playMsj="player"+turnPlayer+"_"+ data.split("_")[1];
 				out.writeUTF(playMsj);
 				out.writeUTF("GAMEOVER");
 				out.flush();
 			}
 
 		} catch(IOException e) {System.out.println("readline:"+e.getMessage());
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} finally{ try {clientSocket.close();}catch (IOException e){/*close failed*/}}
 		
 
