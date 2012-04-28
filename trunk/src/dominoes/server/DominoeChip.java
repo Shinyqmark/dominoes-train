@@ -4,6 +4,9 @@ public class DominoeChip {
 	private int chip[];
 	private int id;
 	private int isAssigned;
+	private int playerId;
+	private int isMula;
+	private int isShifted;
 
 	public DominoeChip(int x, int y, int Id)
 	{
@@ -12,7 +15,35 @@ public class DominoeChip {
 		chip[1] = y;
 		id = Id;
 		isAssigned = 0;
+		playerId = -1;
+		isMula = 0;
+		isShifted = 0;
 	}
+	public void setShifted(int i)
+	{
+		isShifted =i;
+	}
+	public int getShifted()
+	{
+		return isShifted;
+	}
+	public void setMula()
+	{
+		isMula =1;
+	}
+	public int getMula()
+	{
+		return isMula;
+	}
+	public void setPlayer (int player)
+	{
+		playerId = player;
+	}
+	public int getPlayerId()
+	{
+		return playerId;
+	}
+	
 	public int getId ()
 	{
 		return id;
