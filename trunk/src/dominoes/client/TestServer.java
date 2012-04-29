@@ -17,12 +17,10 @@ public class TestServer {
 		public static void main (String args[]) {
 			try{
 				int serverPort = 7896; // the server port
-			//	ConnectionsHandle connectionHAndle= new ConnectionsHandle();
 				ServerSocket listenSocket = new ServerSocket(serverPort);
 				
 				while(true) {
 					Socket clientSocket = listenSocket.accept();
-				//	requestQueue.add(clientSocket);
 					Connection c = new Connection(clientSocket);
 				}
 			} catch(IOException e) {System.out.println("Listen socket:"+e.getMessage());}
@@ -57,25 +55,33 @@ class Connection extends Thread {
 			while (true){
 				data = in.readUTF();	 // read a line of data from the stream
 				System.out.println("Subscription received");
-				String reply="initGame_"+ turnPlayer+"_"+ totalPlayers+"_"+ chipsPlayer+"_"+"4";
+				String reply="initGame_"+ turnPlayer+"_"+ totalPlayers+"_"+ chipsPlayer;
 				out.writeUTF(reply);
 				Thread.sleep(100);
-				String playMsj="player"+0+"_"+ 12;
+				
+				
+				// send first chip
+				//String playMsj="player"+0+"_"+ CHIP + "_" + "restoFichas";
+				String playMsj="player"+0+"_"+ 12 + "_" + "restoFichas";
 				out.writeUTF(playMsj);
+				
+				
 				for(int pTurn=1; pTurn<totalPlayers; pTurn++ )
 				{
 					playMsj="player"+pTurn+"_"+ (chip+pTurn);
 					out.writeUTF(playMsj);
 				}
+				
+				
 				reply="ping"+turnPlayer;
 				out.writeUTF(reply);
 				data = in.readUTF();
 				String [] dataParse=data.split("_");
 				// validate ficha 	PlayMsj="player"+ playTurn+ "_"+selectedChip+"_"+selectedTrail+"_"+myChips.size();
 				if(dataParse[1].length()<1){
-					out.writeUTF(TestServer.ErrorEmptyChip+"_"+8);
+					out.writeUTF(TestServer.ErrorEmptyChip+"_"+8); //TestServer.ErrorEmptyChip+"_"+NewChip)
 				}else{
-					out.writeUTF(TestServer.ErrorInvalidChip+"_"+dataParse[1]+"_"+dataParse[2]);
+					out.writeUTF(TestServer.ErrorInvalidChip+"_"+dataParse[1]+"_"+dataParse[2]); //TestServer.ErrorInvalidChip+"_"+InvalidChip+"_"+Trail
 				}
 			
 				data = in.readUTF();

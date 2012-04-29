@@ -182,6 +182,7 @@ public class Player {
 		int myChip=Integer.parseInt(dataReply.split("_")[2]);
 		int trail=Integer.parseInt(dataReply.split("_")[3]);
 		//myChips.add(gameBoard[trail].pop());
+		gameBoard[trail].pop();
 		myChips.add(myChip);
 		//repaint
 	}
@@ -196,12 +197,13 @@ public class Player {
 
 		System.out.println("Select the trail to play");
 		selectedTrail=in.readLine();
+		printChips(gameBoard[Integer.parseInt(selectedTrail)]);
 		do{
 		System.out.println("Select your chip to play");
 		//for(int i=0; i<myChips.size(); i++ )System.out.print(i +":"+ myChips.get(i) + ",");
 		printChips(myChips);
 		selectedChip=Integer.parseInt(in.readLine());
-		}while(validateChip(Integer.parseInt(selectedTrail),selectedChip)==noValid);
+		}while(validateChip(Integer.parseInt(selectedTrail),myChips.get(selectedChip))==noValid);
 		if(selectedChip>=myChips.size())
 		{
 			PlayMsj="player"+ playTurn+ "_"+""+"_"+selectedTrail+"_"+myChips.size();
@@ -226,7 +228,7 @@ public class Player {
 		DominoeChip prevChip=Dominoes.get(previousChip);
 		DominoeChip newChip=Dominoes.get(chip);
 		
-		if(prevChip.getShifted()){
+		if(prevChip.getShifted()==1){
 			if(prevChip.getChip0()== newChip.getChip0())
 			{
 				gameBoard[player].push(previousChip);
@@ -235,7 +237,7 @@ public class Player {
 			}else if(prevChip.getChip0()== newChip.getChip1())
 			{
 				Dominoes.remove(chip);
-				newChip.setShifted(true);
+				newChip.setShifted(1);
 				Dominoes.set(chip, newChip);
 				gameBoard[player].push(previousChip);
 				gameBoard[player].push(chip);
@@ -251,8 +253,8 @@ public class Player {
 			{
 				gameBoard[player].push(previousChip);
 				gameBoard[player].push(chip);
-				Dominoes.remove(chip);
-				newChip.setShifted(true);
+				//Dominoes.remove(chip);
+				newChip.setShifted(1);
 				Dominoes.set(chip, newChip);
 				return validAndShifed;
 			}
@@ -288,6 +290,13 @@ public class Player {
 
 
 	public static void printChips(Vector <Integer> myChips){
+		
+		for(int i=0; i<myChips.size(); i++){
+			System.out.print(i +":" +printChip(myChips.get(i)) + " , ");
+		}
+	}
+	
+	public static void printChips(Stack <Integer> myChips){
 		
 		for(int i=0; i<myChips.size(); i++){
 			System.out.print(i +":" +printChip(myChips.get(i)) + " , ");
