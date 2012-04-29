@@ -6,7 +6,7 @@ public class DominoeChip {
 	private int isAssigned;
 	private int playerId;
 	private int isMula;
-	private boolean isShifted;
+	private int isShifted;
 
 	public DominoeChip(int x, int y, int Id)
 	{
@@ -17,13 +17,13 @@ public class DominoeChip {
 		isAssigned = 0;
 		playerId = -1;
 		isMula = 0;
-		isShifted = false;
+		isShifted = 0;
 	}
-	public void setShifted(boolean i)
+	public void setShifted(int i)
 	{
 		isShifted =i;
 	}
-	public boolean getShifted()
+	public int getShifted()
 	{
 		return isShifted;
 	}
