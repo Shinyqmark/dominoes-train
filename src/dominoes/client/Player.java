@@ -35,7 +35,7 @@ public class Player {
 
 	public static void main (String args[]) {
 		Socket s = null;
-		int serverPort = 7896;
+		int serverPort = 9997;
 		String data;
 		String playMsj;
 		generateInitalSetDominoes(6);
@@ -43,11 +43,18 @@ public class Player {
 		try {
 			s = new Socket("localhost", serverPort);
 			in = new DataInputStream(s.getInputStream());
-			DataOutputStream out =new DataOutputStream( s.getOutputStream());
+			
+			System.out.println ("ThreadID " + Thread.currentThread().getId() + " Socket and dataInput started ");
+
+			
 
 			// subscribe to play
-			out.writeUTF(startPlaymsj);
+			//out.writeUTF(startPlaymsj);
 			data = in.readUTF();
+			
+			System.out.println ("ThreadID " + Thread.currentThread().getId() + " message received :  " + data);
+
+			
 			if(data.contains("initGame"))
 			{
 				initGame(data);
@@ -55,27 +62,39 @@ public class Player {
 			// wait the game starts 1st chip
 			playMsj=in.readUTF();
 			
+			
+
+			
 			if(playMsj.contains("player"))
 			{
 				String [] broadCastmsj=playMsj.split("_");
 				int playerNum=Integer.parseInt(broadCastmsj[0].substring(6, 7));
 				int playerChip=Integer.parseInt(broadCastmsj[1]);
+				
+				System.out.println ("ThreadID " + Thread.currentThread().getId() + " player message received :  playerNum: " + playerNum + " playerChip : " +playerChip );
+
+				
 				initGameBoard(playerNum,playerChip);
 				System.out.println("init gameboard");
 			}
+			DataOutputStream out =new DataOutputStream( s.getOutputStream());
 			
 			
-			
-			
+			System.out.println ("ThreadID " + Thread.currentThread().getId() + " now wait for next message ");
+
 			playMsj=in.readUTF();
 			while (!playMsj.contains("GAMEOVER"))
 			{
 
 				if(playMsj.contains("ping" + playTurn ))
 				{
+					System.out.println ("ThreadID " + Thread.currentThread().getId() + "we just got a ping message... let's start working ! ");
+
 					// send msj
 					String replyMsj;
 					String chipToplay=playRound();
+					System.out.println ("ThreadID " + Thread.currentThread().getId() + "Chip to play : " +chipToplay);
+
 					out.writeUTF(chipToplay);
 					replyMsj=in.readUTF();
 					do{
@@ -144,15 +163,21 @@ public class Player {
 		playTurn=Integer.parseInt(initMsj[1]);
 		totalPlayers=Integer.parseInt(initMsj[2]);
 		chips=initMsj[3].split(",");
-		//fisrtChip=Integer.parseInt(initMsj[4]);
-		System.out.println("Player " + playTurn + "Total Players: " + totalPlayers +" chips: " + chips.toString());
-		gameBoard=new Stack [totalPlayers];
-		for(int i=0; i<totalPlayers; i++)
+
+		System.out.println("Player " + playTurn + " Total Players: " + totalPlayers );
+		gameBoard=new Stack [totalPlayers+1];
+		for(int i=0; i<totalPlayers+1; i++)
 		{
+			
 			gameBoard[i]= new Stack <Integer>();
 		}
+		
+		System.out.print("Chips :" );
+
 		for(int j=0; j<chips.length; j++)
 		{
+			System.out.print(" : "+ chips[j]);
+
 			myChips.add(Integer.parseInt(chips[j]));
 		}
 	}
@@ -163,7 +188,10 @@ public class Player {
 	}
 	
 	public static void initGameBoard(int player, int chip){
-		for(int i=0; i<totalPlayers; i++ ){
+		//RJUA
+		// totalPlayer +1 ... this is because the Global track..
+		//
+		for(int i=0; i<totalPlayers+1; i++ ){
 			gameBoard[i].push(chip);
 		}
 		System.out.println("Ficha Inicial--> " + printChip(chip));
@@ -194,10 +222,14 @@ public class Player {
 
 		InputStreamReader converter = new InputStreamReader(System.in);
 		BufferedReader in = new BufferedReader(converter);
+		printChips (myChips);
 
 		System.out.println("Select the trail to play");
+		
 		selectedTrail=in.readLine();
+		
 		printChips(gameBoard[Integer.parseInt(selectedTrail)]);
+		
 		do{
 		System.out.println("Select your chip to play");
 		//for(int i=0; i<myChips.size(); i++ )System.out.print(i +":"+ myChips.get(i) + ",");
