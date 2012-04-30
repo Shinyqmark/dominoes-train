@@ -219,10 +219,14 @@ public class Player {
 		int selectedChip;
 		String selectedTrail;
 		String PlayMsj;
+		int returnValid =-1;
 
 		InputStreamReader converter = new InputStreamReader(System.in);
 		BufferedReader in = new BufferedReader(converter);
-		printChips (myChips);
+		
+		
+		//printChips (myChips);
+		printGameBoard();
 
 		System.out.println("Select the trail to play");
 		
@@ -231,21 +235,40 @@ public class Player {
 		printChips(gameBoard[Integer.parseInt(selectedTrail)]);
 		
 		do{
-		System.out.println("Select your chip to play");
-		//for(int i=0; i<myChips.size(); i++ )System.out.print(i +":"+ myChips.get(i) + ",");
-		printChips(myChips);
-		selectedChip=Integer.parseInt(in.readLine());
-		}while(validateChip(Integer.parseInt(selectedTrail),myChips.get(selectedChip))==noValid);
+			
+			System.out.println("Select your chip to play");
+			//for(int i=0; i<myChips.size(); i++ )System.out.print(i +":"+ myChips.get(i) + ",");
+			printChips(myChips);
+			selectedChip=Integer.parseInt(in.readLine());
+			returnValid = validateChip(Integer.parseInt(selectedTrail),myChips.get(selectedChip));
+			
+			System.out.println(" The validateChip function returned : "+ returnValid);
+
+		}while(returnValid==noValid);
+	
 		if(selectedChip>=myChips.size())
 		{
-			PlayMsj="player"+ playTurn+ "_"+""+"_"+selectedTrail+"_"+myChips.size();
+			PlayMsj="player"+ playTurn+ "_"+"-1"+"_"+selectedTrail+"_"+myChips.size();
 		}else{
 			selectedChip=myChips.remove(selectedChip);
 			PlayMsj="player"+ playTurn+ "_"+selectedChip+"_"+selectedTrail+"_"+myChips.size();
 
 		}
+		
+		//
+		// 	validateChip is going to return  2 if the chip is shifted...
+		//  add the proper flag
+		if (returnValid == 2)
+		{
+			PlayMsj+="_1";
+		}
+		else
+		{
+			PlayMsj+="_0";
+		}
 
 
+		System.out.println(" playRound : message to return  "+ PlayMsj);
 
 
 
@@ -260,6 +283,8 @@ public class Player {
 		DominoeChip prevChip=Dominoes.get(previousChip);
 		DominoeChip newChip=Dominoes.get(chip);
 		
+		System.out.println("validateChip: player: "+player + " chip: " + chip );
+
 		if(prevChip.getShifted()==1){
 			if(prevChip.getChip0()== newChip.getChip0())
 			{
@@ -355,6 +380,8 @@ public class Player {
 	}
 
 	public static void printGameBoard(){
+		System.out.println("printGameBoard ()");
+
 		for(int i=0; i<totalPlayers; i++)
 		{
 			for(int j=0; j<gameBoard[i].size(); j++)

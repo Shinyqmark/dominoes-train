@@ -553,6 +553,7 @@ public class Server {
 						try {
 							System.out.println ("ThreadID " + Thread.currentThread().getId() + "   Let's wait my turn ");
 							wait();	
+							moveDone = false;
 						} catch (InterruptedException e1) {e1.printStackTrace();}
 					}
 				}
@@ -599,6 +600,8 @@ public class Server {
 					int trackFromPlayer = parseChipResponse (msgFromPlayer,2);
 					int remainingChips = parseChipResponse (msgFromPlayer,3);
 					int isShifted = parseChipResponse (msgFromPlayer,4);
+
+					System.out.println ("ThreadID " + Thread.currentThread().getId() + "  message  parsed chipFromPlayer: "+chipFromPlayer + " trackFromPlayer: " +trackFromPlayer+" remaining: "+remainingChips +" isShifted: "+isShifted );
 
 					// 2. Wait for their chip...or empty
 					//
