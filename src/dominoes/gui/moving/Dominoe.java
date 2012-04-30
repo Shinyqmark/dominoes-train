@@ -11,8 +11,8 @@ public class Dominoe  {
 
 	public int x;
 	public int y;
-	int width;
-	int height;
+	public int width;
+	public int height;
 	Image img;
 
 	private String imgFileName; //= "images/fichaDomino_1.png"; 
