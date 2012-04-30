@@ -290,10 +290,25 @@ public class Player {
 
 
 	public static void printChips(Vector <Integer> myChips){
+		String aux="";
 		
 		for(int i=0; i<myChips.size(); i++){
+			//aux.concat(str)
 			System.out.print(i +":" +printChip(myChips.get(i)) + " , ");
+			
 		}
+	}
+	
+
+	public static String getDominoesChips(Vector <Integer> myChips){
+		String aux="";
+		
+		for(int i=0; i<myChips.size(); i++){
+			aux.concat(myChips.get(i) + " , ");
+	
+		}
+		return aux;
+	
 	}
 	
 	public static void printChips(Stack <Integer> myChips){

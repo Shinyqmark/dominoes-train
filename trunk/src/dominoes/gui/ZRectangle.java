@@ -1,4 +1,4 @@
-package dominoes.gui.moving;
+package dominoes.gui;
 
 
 import java.awt.TexturePaint;
@@ -12,28 +12,16 @@ import javax.imageio.ImageIO;
 
 class ZRectangle extends Rectangle2D.Float {
 
-    BufferedImage dominoImage;
-    TexturePaint dominotp;
+	public int x;
+	public int y;
 
-	
-    public ZRectangle(float x, float y, float width, float height) {
-        setRect(x, y, width, height);
+    public ZRectangle(int x, int y, float width, float height) {
+        this.x=x;
+        this.y=y;
+    	setRect(x, y, width, height);
+   }
 
-        try {
-        	dominoImage = ImageIO.read(new File ("C:\\eclipse\\fichaDomino_2.png"));
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        
-        dominotp = new TexturePaint(dominoImage, this);
-    }
-
-  
-
- 
-    
-    public boolean isHit(float x, float y) {
+   public boolean isHit(float x, float y) {
         if (getBounds2D().contains(x, y)) {
             return true;
         } else {

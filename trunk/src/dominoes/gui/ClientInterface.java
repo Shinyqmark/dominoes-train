@@ -1,23 +1,32 @@
 package dominoes.gui;
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridLayout;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import dominoes.gui.moving.Dominoe;
 
-public class ClientInterface extends JFrame {
+public class ClientInterface extends JFrame implements ActionListener {
 
 	/**
 	 * @param args
@@ -31,7 +40,8 @@ public class ClientInterface extends JFrame {
     // Image
     private String imgFileName = "images/fichaDomino_2.png"; // relative to project root or bin
 
-    private int imgWidth, imgHeight;  
+    JButton drawButton= new JButton("Draw");
+ 	JButton passButton= new JButton("Pass");
     
 	public static void main(String[] args) {
 
@@ -41,18 +51,14 @@ public class ClientInterface extends JFrame {
 	public ClientInterface (){
 		super("Dominoes");
 		setVisible(true);
-		setSize(200,200);
-	    MovingAdapter ma = new MovingAdapter();
-
-	    addMouseMotionListener(ma);
-	    addMouseListener(ma);
+		setSize((int)Toolkit.getDefaultToolkit().getScreenSize().getWidth()-50,(int)Toolkit.getDefaultToolkit().getScreenSize().getHeight()-50);
 
 	    fichaD= new Dominoe (100,100,imgFileName,this);
 
 		getContentPane().setLayout(new BorderLayout());
 		((JComponent) getContentPane()).setDoubleBuffered(true);
 		buildInterface (getContentPane());
-		//add(buildInterface());
+
 	}
 	
 	public void buildInterface(Container pane){
@@ -74,35 +80,33 @@ public class ClientInterface extends JFrame {
 	public JPanel gameBoard(){
 		
 		JPanel board = new JPanel();
-		board.setLayout(new GridLayout(gamePlayers, boardSpaces));
-		int totalSpace=gamePlayers*boardSpaces;
-		
-		for(int i=0; i<totalSpace; i++){
-			board.add(new JButton(""+i));
-		}
-		
-		board.setPreferredSize(new Dimension(400, 0));
-		board.setBackground(Color.white);
-		return board;
+
+		DrawingArea gameboarddraw= new DrawingArea ();
+		board.setPreferredSize(new Dimension(400, 100));
+
+		board.add(gameboarddraw);
+		return gameboarddraw;
 	}
 	
 	public JPanel gameMenu(){
-		JLabel tableroTitle= new JLabel("Juego de Domino");
-		JButton drawButton= new JButton();
-//		button.setIcon(new ImageIcon("C:\\eclipse\\fichaDomino_1.png"));
-	 	JButton passButton= new JButton();
-//		button2.setIcon(new ImageIcon("C:\\eclipse\\fichaDomino_1.png"));
-
-		tableroTitle.setBounds(10, 10, 50, 300);
-		passButton.setBounds(500, 10, 40, 20);
-		drawButton.setBounds(500, 35, 40, 20);
+	//	JButton drawButton= new JButton("Draw");
+	 //	JButton passButton= new JButton("Pass");
+	 	drawButton.addActionListener(this);
+	 	passButton.addActionListener(this);
+		JLabel remainingChipsL =new JLabel("Remain Chips " );
+		JTextField remainingChipsT = new JTextField(5);
 		
 		JPanel playerBoard = new JPanel( );
-		playerBoard.setLayout(null);
-		playerBoard.setPreferredSize(new Dimension(400, 80));
-		playerBoard.add(tableroTitle);
+		JPanel chipsBoard = new JPanel( );
+		chipsBoard.setPreferredSize(new Dimension(750, 40));
+
+		playerBoard.setPreferredSize(new Dimension(1100, 40));
+		playerBoard.add(chipsBoard);
+
 		playerBoard.add(drawButton);
 		playerBoard.add(passButton);
+		playerBoard.add(remainingChipsL);
+		playerBoard.add(remainingChipsT);
 	
 
 		return playerBoard;
@@ -124,68 +128,41 @@ public class ClientInterface extends JFrame {
 	public JPanel playersBar(){
 		
 		JPanel playersBar = new JPanel( );
-	//	playersBar.setLayout(new BorderLayout());
-		//playersBar.setPreferredSize(new Dimension(400, 80));
-		playersBar.setLayout(new GridLayout (gamePlayers,1));
-		for(int i=0; i<gamePlayers; i++){
-			playersBar.add(new JLabel("Player " + i + "F" + 4 ));
+
+		playersBar.setLayout(new BoxLayout(playersBar, BoxLayout.Y_AXIS));
+		playersBar.setPreferredSize(new Dimension(80, 450));
+		
+		JLabel Title=new JLabel("Jugadores");
+		Title.setPreferredSize(new Dimension(80, 90));
+		playersBar.add(Title);
+		for(int i=0; i<=gamePlayers; i++){
+			JLabel aux=new JLabel("Player" + i);
+			JTextField ChipRemain=new JTextField("5");
+			aux.setPreferredSize(new Dimension(80, 10));
+			ChipRemain.setSize(new Dimension(80, 15));
+		
+
+			playersBar.add(aux);
+			playersBar.add(ChipRemain);
 		}
 		
 		return playersBar;
 	}
 
-	  public void paint(Graphics g) {
-	        super.paint(g);
-	        
-	        Graphics2D g2d = (Graphics2D) g;
-	   
-	        Font font = new Font("Serif", Font.BOLD, 40);
-	        g2d.setFont(font);
-	        
-	        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-	                        RenderingHints.VALUE_ANTIALIAS_ON);
-	        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-	                        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-
-	        AffineTransform transform = new AffineTransform();  // identity transform
-
-	       // transform.translate(fichaD.x - imgWidth/2, fichaD.y - imgHeight/2);
-	        //g2d.drawImage(fichaD.getImg(), transform, this);
-	        
-	     
-	        
-	    }
-	  
-	  class MovingAdapter extends MouseAdapter {
-
-	        private int x;
-	        private int y;
-	        private boolean mymove=false;
-	        public void mousePressed(MouseEvent e) {
-	            x = e.getX();
-	            y = e.getY();
-	            System.out.println("Mouse presed" + x + "," + y );
-	            
-	            if (fichaD.isHit(x, y)) {
-	            	 System.out.println("Ficha is hit");
-	            	mymove=true;
-	            }else mymove=false;
-	        }
-
-	        public void mouseReleased(MouseEvent e) {
-	        
-	        	if(mymove){
-	        		 System.out.println("Ficha is released");
-	        		x = e.getX();
-	        		y = e.getY();
-	        		fichaD.setX(x);
-	        		fichaD.setY(y);
-	        		System.out.println("Mouse released" + x + "," + y );
-	        		repaint();
-	        		mymove=false;
-	        	}
-	        }
-	    }
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		System.out.println("ClickOnButton");
+		if(	e.getSource().equals(drawButton))
+		{
+			// SEND MSJ WITH EMPTY CHIP
+			System.out.println("ClickOnDrawButton");
+		}
+		if(	e.getSource().equals(passButton))
+		{
+			//
+			System.out.println("ClickOnpassButtonButton");
+		}
+	}
 
 }
