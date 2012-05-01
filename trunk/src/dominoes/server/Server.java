@@ -589,7 +589,9 @@ public class Server {
 					//
 					// send broadcast to all the players..
 					//
-					String playMsj="player"+idPlayer+"_"+ Server.initialChip + "_" + DominoesPlayer.size() + "_" + (Dominoes.size()-Server.DominoesAssigned +"_0"+idPlayer); // broadcast
+					//  broadCast msg : playerIdplayer_ChipID_RemainingChips_FreeChips_trenencito_selectedTrail_isShifted
+					//
+					String playMsj="player"+idPlayer+"_"+ Server.initialChip + "_" + DominoesPlayer.size() + "_" + (Dominoes.size()-Server.DominoesAssigned +"_0_"+idPlayer+"_0"); // broadcast
 			
 					try {
 						Server.communication.broadCast(playMsj);
@@ -613,6 +615,8 @@ public class Server {
 						Server.communication.sendMessage(msg, idPlayer);
 					}
 					msgFromPlayer = Server.communication.receiveMessage(idPlayer);
+
+					System.out.println ("ThreadID " + Thread.currentThread().getId() + "  message before parser: " + msgFromPlayer);
 
 					
 					int chipFromPlayer = parseChipResponse (msgFromPlayer,1) ;
@@ -689,7 +693,11 @@ public class Server {
 						
 						Server.communication.sendMessage(OKchip,  idPlayer);
 						
-						String playMsj="player"+idPlayer+"_"+playerChip.getId() + "_" + DominoesPlayer.size() + "_" + (Dominoes.size()-Server.DominoesAssigned) +"_0_"+trackFromPlayer; 
+						//
+						//  broadCast msg : playerIdplayer_ChipID_RemainingChips_FreeChips_trenencito_selectedTrail_isShifted
+						//
+						
+						String playMsj="player"+idPlayer+"_"+playerChip.getId() + "_" + DominoesPlayer.size() + "_" + (Dominoes.size()-Server.DominoesAssigned) +"_0_"+trackFromPlayer+"_"+playerChip.getShifted(); 
 						
 						try {
 							Server.communication.broadCast(playMsj);
@@ -720,7 +728,10 @@ public class Server {
 						{
 							System.out.println ("ThreadID " + Thread.currentThread().getId() + " since this player has already asked for a chip.. no need to get a new one");
 							Server.communication.sendMessage(OKchip, idPlayer);
-							String playMsj="player"+idPlayer+"_999_" + DominoesPlayer.size() + "_" + (Dominoes.size()-Server.DominoesAssigned) +"_1_"+idPlayer; 
+							//
+							//  broadCast msg : playerIdplayer_ChipID_RemainingChips_FreeChips_trenencito_selectedTrail_isShifted
+							//
+							String playMsj="player"+idPlayer+"_999_" + DominoesPlayer.size() + "_" + (Dominoes.size()-Server.DominoesAssigned) +"_1_"+idPlayer+"_0"; 
 							
 							try {
 								Server.communication.broadCast(playMsj);
