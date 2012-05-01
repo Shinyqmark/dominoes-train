@@ -11,7 +11,6 @@ import java.util.Vector;
 
 import javax.swing.JPanel;
 
-import dominoes.gui.moving.Dominoe;
 
 public class DrawingArea extends JPanel  {
 
@@ -93,7 +92,7 @@ public class DrawingArea extends JPanel  {
 
 
 
-		g2d.setColor(Color.blue);
+		g2d.setColor(Color.gray);
 		for (int i=0; i<9; i++){
 			newx=x;
 			for (int j=0; j< 10; j++)

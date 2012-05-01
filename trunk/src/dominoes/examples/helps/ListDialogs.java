@@ -1,4 +1,4 @@
-package dominoes.gui;
+package dominoes.examples.helps;
 /*
  * Copyright (c) 1995, 2008, Oracle and/or its affiliates. All rights reserved.
  *

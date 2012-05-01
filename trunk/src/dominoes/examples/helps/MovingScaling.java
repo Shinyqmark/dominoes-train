@@ -1,4 +1,4 @@
-package dominoes.gui.moving;
+package dominoes.examples.helps;
 
 import java.awt.Dimension;
 import java.awt.Font;
@@ -11,6 +11,8 @@ import java.awt.geom.AffineTransform;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import dominoes.gui.Dominoe;
 
 
 public class MovingScaling extends JPanel {

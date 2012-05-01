@@ -1,4 +1,4 @@
-package dominoes.gui;
+package dominoes.examples.helps;
 
 import java.awt.Color;
 import java.awt.Cursor;

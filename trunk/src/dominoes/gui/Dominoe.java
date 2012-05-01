@@ -1,4 +1,4 @@
-package dominoes.gui.moving;
+package dominoes.gui;
 
 import java.awt.Image;
 import java.awt.image.ImageObserver;
