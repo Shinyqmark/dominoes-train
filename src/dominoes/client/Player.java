@@ -290,7 +290,19 @@ public class Player {
 			//for(int i=0; i<myChips.size(); i++ )System.out.print(i +":"+ myChips.get(i) + ",");
 			printChips(myChips);
 			selectedChip=Integer.parseInt(in.readLine());
-			returnValid = validateChip(Integer.parseInt(selectedTrail),myChips.get(selectedChip));
+			if(selectedChip ==99)
+			{
+				System.out.println(" User does not have a valid chip... let's request one.. ");
+				//
+				// isValid = 0
+				//
+				returnValid = 0;
+
+			}
+			else
+			{
+				returnValid = validateChip(Integer.parseInt(selectedTrail),myChips.get(selectedChip));
+			}
 			
 			System.out.println(" The validateChip function returned : "+ returnValid);
 
