@@ -39,7 +39,7 @@ class Connection extends Thread {
 	public  int turnPlayer=3;
 	public  int turn=3;
 	public  int chip=6;
-	public  String chipsPlayer="1,2,3,4,5,6";
+	public  String chipsPlayer="1,4,23,34,15,6";
 	
 	public Connection (Socket aClientSocket) {
 		try {

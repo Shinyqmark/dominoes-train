@@ -7,6 +7,7 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
+import java.util.Vector;
 
 import javax.swing.JPanel;
 
@@ -29,7 +30,7 @@ public class DrawingArea extends JPanel  {
 	ZRectangle zrect;
 	String i="0";
 	String j="0";
-    private String imgFileName = "images/"+ i + "_" + j + ".png";//fichaDomino_2.png";
+	private String imgFileName = "images/"+ i + "_" + j + ".png";//fichaDomino_2.png";
 
 	public DrawingArea (){
 		MovingAdapter ma = new MovingAdapter();
@@ -50,26 +51,34 @@ public class DrawingArea extends JPanel  {
 			newy=newy+55;
 		}
 		//String imgNAme= imgFileName + 
-//		for(int i=0; i<10; i++)
-//		{
-//			if(i%2==0){
-//				playerChips[i]= new Dominoe (90+(i*80),0,imgFileName,this);
-//			}else{
-//				playerChips[i]= new Dominoe (90+(i*80),45,imgFileName,this);
-//			}
-//			
-//		}
-		
+		//		for(int i=0; i<10; i++)
+		//		{
+		//			if(i%2==0){
+		//				playerChips[i]= new Dominoe (90+(i*80),0,imgFileName,this);
+		//			}else{
+		//				playerChips[i]= new Dominoe (90+(i*80),45,imgFileName,this);
+		//			}
+		//			
+		//		}
+
+
 		int cont=0;
 		for(int i=0; i<=12; i++)
 		{
 			for(int j=i; j<=12; j++)
 			{
 				imgFileName = "images/"+ i + "_" + j + ".png";
-				playerChips[cont]= new Dominoe (90+(i*80),0,imgFileName,this);
+				if(cont%2==0){
+					playerChips[cont]= new Dominoe (0,0,imgFileName,this);
+				}else{
+					playerChips[cont]= new Dominoe (0,45,imgFileName,this);
+				}
 				cont++;
 			}
 		}
+		Vector <Integer> playChips= ClientInterface.player.getMyChips();
+		for(int i=0; i<playChips.size(); i++)
+			playerChips[playChips.get(i)].setX(10+(i*80));
 	}
 
 	@Override public void paintComponent(Graphics g) {
@@ -80,10 +89,10 @@ public class DrawingArea extends JPanel  {
 		int newy=y;
 		int newx=x;
 		Graphics2D g2d = (Graphics2D) g;
-		
-		 
-		
-		
+
+
+
+
 		g2d.setColor(Color.blue);
 		for (int i=0; i<9; i++){
 			newx=x;
@@ -96,24 +105,25 @@ public class DrawingArea extends JPanel  {
 			}
 			newy=newy+55;
 		}
-		
-		
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
 
-        AffineTransform transform = new AffineTransform();  // identity transform
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
+		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-        for(int i=0; i<10; i++)
-        {
-        	// transform.translate(playerChips[i].x - playerChips[i].width/2, playerChips[i].y - playerChips[i].height/2);
-        	transform = new AffineTransform();
-        	transform.translate(playerChips[i].x, playerChips[i].y);
-             g2d.drawImage(playerChips[i].getImg(), transform, this);	
-        }
-       
+
+		AffineTransform transform = new AffineTransform();  // identity transform
+		Vector <Integer> playChips= ClientInterface.player.getMyChips();
+		for(int i=0; i<playChips.size(); i++)
+		{
+			// transform.translate(playerChips[i].x - playerChips[i].width/2, playerChips[i].y - playerChips[i].height/2);
+			
+			transform = new AffineTransform();
+			transform.translate(playerChips[playChips.get(i)].x, playerChips[playChips.get(i)].y);
+			g2d.drawImage(playerChips[playChips.get(i)].getImg(), transform, this);	
+		}
+
 
 
 	}
@@ -133,30 +143,30 @@ public class DrawingArea extends JPanel  {
 
 		public void mouseReleased(MouseEvent e) {
 
-//			x = e.getX();
-//			y = e.getY();
-//
-//			for(int i=0; i<zrectArray.length; i++ )
-//			{
-//				if (zrectArray[i].isHit(x, y)) {
-//					System.out.println("Zrect number " + i + " is Hit");
-//					// repaint();
-//				}
-//			}
+			//			x = e.getX();
+			//			y = e.getY();
+			//
+			//			for(int i=0; i<zrectArray.length; i++ )
+			//			{
+			//				if (zrectArray[i].isHit(x, y)) {
+			//					System.out.println("Zrect number " + i + " is Hit");
+			//					// repaint();
+			//				}
+			//			}
 		}
-		
+
 		public void mouseClicked(MouseEvent e){
-		
+
 			x = e.getX();
 			y = e.getY();
-			
+
 			if(e.getClickCount() ==1){
-			
-				for( int i=0; i< 10; i++)
+				Vector <Integer> playChips= ClientInterface.player.getMyChips();
+				for( int i=0; i< playChips.size() ; i++)
 				{
-					if (playerChips[i].isHit(x, y)) {
+					if (playerChips[playChips.get(i)].isHit(x, y)) {
 						System.out.println("Dominoe number " + i + " is Hit");
-						ChipSelected=i;
+						ChipSelected=playChips.get(i);
 						// repaint();
 					}
 				}
@@ -167,21 +177,19 @@ public class DrawingArea extends JPanel  {
 				for(int i=0; i<zrectArray.length; i++ )
 					for(int j=0; j<10; j++)
 					{
+						if (zrectArray[i][j].isHit(x, y)) {
+								System.out.println("Zrect number " + i + "," + j + " is Hit. In " + x +"," + y + "Dominochip x/y" + zrectArray[i][j].x + "/" + zrectArray[i][j].y);
+								if(ChipSelected>=0)
+								{
+									playerChips[ChipSelected].setX(zrectArray[i][j].x);
+									playerChips[ChipSelected].setY(zrectArray[i][j].y);
+									repaint();
+									ChipSelected=-1;
+								}
+								break;
+							}
 						
-			
-				{
-					if (zrectArray[i][j].isHit(x, y)) {
-						System.out.println("Zrect number " + i + "," + j + " is Hit");
-						if(ChipSelected>=0)
-						{
-							playerChips[ChipSelected].setX(zrectArray[i][j].x);
-							playerChips[ChipSelected].setY(zrectArray[i][j].y);
-							repaint();
-							ChipSelected=-1;
-						}
-					 break;
 					}
-				}		}
 				ChipSelected=-1;
 			} 
 		}

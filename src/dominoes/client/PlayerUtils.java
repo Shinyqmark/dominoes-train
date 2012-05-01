@@ -28,7 +28,8 @@ public class PlayerUtils {
 	public static String ErrorEmptyChip="ERROR_EmptyChip";
 	public static String OKchip="OK_Skip";
 	public Stack<Integer> [] gameBoard;
-	public Vector <Integer> myChips = new Vector (); 
+	private Vector <Integer> myChips = new Vector <Integer> (); 
+
 	int isValid=0;
 	static int noValid=1;
 	int validAndShifed=2;
@@ -242,6 +243,13 @@ public class PlayerUtils {
 		}
 	}
 
-	
+	public Vector<Integer> getMyChips() {
+		return myChips;
+	}
+
+	public void setMyChips(Vector<Integer> myChips) {
+		this.myChips = myChips;
+	}
+
 	
 }
