@@ -1,7 +1,9 @@
 package dominoes.gui;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -57,7 +59,8 @@ public class ClientInterface extends JFrame implements ActionListener {
 	static int noValid=1;
 	int validAndShifed=2;
 	public static PlayerUtils player;
-
+	DrawingArea gameboarddraw;
+	public static boolean moveDone=false;
 
 	public static void main(String[] args) {
 
@@ -71,7 +74,7 @@ public class ClientInterface extends JFrame implements ActionListener {
 		String data;
 		//		String playMsj;
 		player=new PlayerUtils();
-		player.generateInitalSetDominoes(6);
+		player.generateInitalSetDominoes(12);
 
 		try {
 			s = new Socket("localhost", serverPort);
@@ -112,6 +115,86 @@ public class ClientInterface extends JFrame implements ActionListener {
 		buildInterface (getContentPane());
 
 
+		String playMsj;
+		try {
+			playMsj = in.readUTF();
+
+		while (!playMsj.contains("GAMEOVER"))
+		{
+
+			if(playMsj.contains("ping" + player.getPlayTurn() ))
+			{
+				System.out.println ("ThreadID " + Thread.currentThread().getId() + "we just got a ping message... let's start working ! ");
+
+				while(!moveDone){
+					Thread.sleep(100);
+				}
+				moveDone=false;
+				// send msj
+				String replyMsj;
+				
+				String chipToplay=player.playRound();
+				System.out.println ("ThreadID " + Thread.currentThread().getId() + "Chip to play : " +chipToplay);
+
+				out.writeUTF(chipToplay);
+				replyMsj=in.readUTF();
+				do{
+					if(replyMsj.contains("ERROR"))
+					{
+
+						if(replyMsj.contains(ErrorInvalidChip))
+						{
+							System.out.println(replyMsj);
+							player.backTracking(replyMsj);
+							chipToplay=player.playRound();
+							out.writeUTF(chipToplay);
+							replyMsj=in.readUTF();
+
+						}else if(replyMsj.contains(ErrorEmptyChip))
+						{
+							System.out.println(replyMsj);
+							// Read the chip sent, update player chips & play again
+							int newChip=Integer.parseInt(replyMsj.split("_")[2]);
+							player.updateSelfChips(newChip);
+							chipToplay=player.playRound();
+							out.writeUTF(chipToplay);
+							replyMsj=in.readUTF();
+						}
+
+					}
+
+				}while(!replyMsj.contains(OKchip) );
+			}else if(playMsj.contains("player" + player.getPlayTurn() ))
+			{
+				String [] broadCastmsj=playMsj.split("_");
+				int playerNum=Integer.parseInt(broadCastmsj[0].substring(6, 7));
+				int playerChip=Integer.parseInt(broadCastmsj[1]);
+				player.updateGameBoard(playerNum,playerChip);
+				System.out.println("update gameboard");
+				
+				// play game & No need to update gameboard
+				System.out.println("play game & update gameboard");
+			}else{
+				String [] broadCastmsj=playMsj.split("_");
+				int playerNum=Integer.parseInt(broadCastmsj[0].substring(6, 7));
+				int playerChip=Integer.parseInt(broadCastmsj[1]);
+				int stackSize=player.updateGameBoard(playerNum,playerChip);
+				gameboarddraw.updateBoard(playerNum,playerChip,stackSize);
+				System.out.println("update gameboard");
+			
+			}
+			playMsj=in.readUTF();
+			Thread.sleep(1000);
+		}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Game Oveer");
+
 
 
 	}
@@ -136,7 +219,7 @@ public class ClientInterface extends JFrame implements ActionListener {
 
 		JPanel board = new JPanel();
 
-		DrawingArea gameboarddraw= new DrawingArea ();
+		gameboarddraw= new DrawingArea ();
 		board.setPreferredSize(new Dimension(400, 100));
 
 		board.add(gameboarddraw);
@@ -144,8 +227,6 @@ public class ClientInterface extends JFrame implements ActionListener {
 	}
 
 	public JPanel gameMenu(){
-		//	JButton drawButton= new JButton("Draw");
-		//	JButton passButton= new JButton("Pass");
 		drawButton.addActionListener(this);
 		passButton.addActionListener(this);
 		JLabel remainingChipsL =new JLabel("Remain Chips " );
@@ -204,6 +285,13 @@ public class ClientInterface extends JFrame implements ActionListener {
 		return playersBar;
 	}
 
+	
+//	public void paint(Graphics g) {
+//		g.setColor(Color.blue);
+//		g.fillRect(100,50,100,100);
+//	}
+//	
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
@@ -211,7 +299,7 @@ public class ClientInterface extends JFrame implements ActionListener {
 		if(	e.getSource().equals(drawButton))
 		{
 			// SEND MSJ WITH EMPTY CHIP
-		
+
 			System.out.println("ClickOnDrawButton");
 			player.playRound();
 		}

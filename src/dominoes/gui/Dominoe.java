@@ -14,6 +14,10 @@ public class Dominoe  {
 	public int width;
 	public int height;
 	Image img;
+	private boolean isFree=true;
+	
+
+
 
 	private String imgFileName; //= "images/fichaDomino_1.png"; 
 
@@ -85,10 +89,17 @@ public class Dominoe  {
 		return img;
 	}
 
-
-
 	public void setImg(Image img) {
 		this.img = img;
 	}
+	
+	public boolean isFree() {
+		return isFree;
+	}
+
+	public void setFree(boolean isFree) {
+		this.isFree = isFree;
+	}
+
 
 }
