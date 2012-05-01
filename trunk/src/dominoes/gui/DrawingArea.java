@@ -14,18 +14,23 @@ import dominoes.gui.moving.Dominoe;
 
 public class DrawingArea extends JPanel  {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	int weith=1100;
 	int height=500;
 	int x=10;
 	int y=100;
 	int xMax=x+weith;
 	int yMax=y+height;
-	ZRectangle [] zrectArray = new ZRectangle[90];
-	Dominoe [] playerChips = new Dominoe[10];
+	ZRectangle [][] zrectArray = new ZRectangle[9][10];
+	Dominoe [] playerChips = new Dominoe[100];
 	ZRectangle zrect;
-	private Dominoe fichaD;
-    private String imgFileName = "images/fichaDomino_2.png";
-	
+	String i="0";
+	String j="0";
+    private String imgFileName = "images/"+ i + "_" + j + ".png";//fichaDomino_2.png";
+
 	public DrawingArea (){
 		MovingAdapter ma = new MovingAdapter();
 
@@ -34,31 +39,37 @@ public class DrawingArea extends JPanel  {
 
 		int newy=y;
 		int newx=x;
-		int cont=0;
 		for (int i=0; i<9; i++){
 			newx=x;
 			for (int j=0; j< 10; j++)
 			{
-				zrectArray[cont]=new ZRectangle(newx, newy, 90, 45);
-				cont++;
+				zrectArray[i][j]=new ZRectangle(newx, newy, 85, 45);
 				//	 g.fillRect(newx,newy,90,45);
 				newx=newx+110;
 			}
 			newy=newy+55;
 		}
-
-		for(int i=0; i<10; i++)
-		{
-			if(i%2==0){
-				playerChips[i]= new Dominoe (90+(i*80),0,imgFileName,this);
-			}else{
-				playerChips[i]= new Dominoe (90+(i*80),45,imgFileName,this);
-			}
-			
-		}
+		//String imgNAme= imgFileName + 
+//		for(int i=0; i<10; i++)
+//		{
+//			if(i%2==0){
+//				playerChips[i]= new Dominoe (90+(i*80),0,imgFileName,this);
+//			}else{
+//				playerChips[i]= new Dominoe (90+(i*80),45,imgFileName,this);
+//			}
+//			
+//		}
 		
-
-
+		int cont=0;
+		for(int i=0; i<=12; i++)
+		{
+			for(int j=i; j<=12; j++)
+			{
+				imgFileName = "images/"+ i + "_" + j + ".png";
+				playerChips[cont]= new Dominoe (90+(i*80),0,imgFileName,this);
+				cont++;
+			}
+		}
 	}
 
 	@Override public void paintComponent(Graphics g) {
@@ -74,14 +85,12 @@ public class DrawingArea extends JPanel  {
 		
 		
 		g2d.setColor(Color.blue);
-		int cont=0;
 		for (int i=0; i<9; i++){
 			newx=x;
 			for (int j=0; j< 10; j++)
 			{
 				//	 zrectArray[i*j]=new ZRectangle(newx, newy, 90, 45);;
-				g2d.fill( zrectArray[cont]);
-				cont++;
+				g2d.fill( zrectArray[i][j]);
 				//	 g.fillRect(newx,newy,90,45);
 				newx=newx+110;
 			}
@@ -156,19 +165,23 @@ public class DrawingArea extends JPanel  {
 				y = e.getY();
 
 				for(int i=0; i<zrectArray.length; i++ )
+					for(int j=0; j<10; j++)
+					{
+						
+			
 				{
-					if (zrectArray[i].isHit(x, y)) {
-						System.out.println("Zrect number " + i + " is Hit");
+					if (zrectArray[i][j].isHit(x, y)) {
+						System.out.println("Zrect number " + i + "," + j + " is Hit");
 						if(ChipSelected>=0)
 						{
-							playerChips[ChipSelected].setX(zrectArray[i].x);
-							playerChips[ChipSelected].setY(zrectArray[i].y);
+							playerChips[ChipSelected].setX(zrectArray[i][j].x);
+							playerChips[ChipSelected].setY(zrectArray[i][j].y);
 							repaint();
 							ChipSelected=-1;
 						}
 					 break;
 					}
-				}
+				}		}
 				ChipSelected=-1;
 			} 
 		}
