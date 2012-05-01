@@ -1,4 +1,4 @@
-package dominoes.gui;
+package dominoes.examples.helps;
 
 import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;

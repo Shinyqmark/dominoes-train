@@ -1,6 +1,8 @@
-package dominoes.gui;
+package dominoes.examples.helps;
 
 import javax.swing.*;
+
+
 import java.awt.*;
 import java.awt.event.*;
  

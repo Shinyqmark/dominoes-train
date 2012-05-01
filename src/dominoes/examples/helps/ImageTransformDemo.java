@@ -1,4 +1,4 @@
-package dominoes.gui.moving;
+package dominoes.examples.helps;
 import java.awt.geom.AffineTransform;
 import javax.imageio.ImageIO;
 import java.net.URL;

@@ -1,4 +1,4 @@
-package dominoes.gui.moving;
+package dominoes.examples.helps;
 
 import java.awt.geom.Ellipse2D;
 
