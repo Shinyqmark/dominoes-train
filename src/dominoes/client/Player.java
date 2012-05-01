@@ -76,15 +76,33 @@ public class Player {
 				
 				initGameBoard(playerNum,playerChip);
 				System.out.println("init gameboard");
+				
+				//
+				// IF this player has the initial chip.. then he needs to remove it from his list...
+				// 
+				if (playerNum ==playTurn)
+				{
+					System.out.println ("ThreadID " + Thread.currentThread().getId() + " I'm the one with the initial chip... delete it from my bucket" );
+
+					int z = getDominoesPlayerPosition (myChips,playerChip);
+					myChips.remove(z);
+
+				}
 			}
 			DataOutputStream out =new DataOutputStream( s.getOutputStream());
 			
 			
 			System.out.println ("ThreadID " + Thread.currentThread().getId() + " now wait for next message ");
 
-			playMsj=in.readUTF();
+			
+
 			while (!playMsj.contains("GAMEOVER"))
 			{
+				
+				playMsj=in.readUTF();
+
+				System.out.println("Msg received from Server : " + playMsj);
+
 
 				if(playMsj.contains("ping" + playTurn ))
 				{
@@ -97,6 +115,7 @@ public class Player {
 
 					out.writeUTF(chipToplay);
 					replyMsj=in.readUTF();
+					
 					do{
 						if(replyMsj.contains("ERROR"))
 						{
@@ -123,24 +142,49 @@ public class Player {
 						}
 
 					}while(!replyMsj.contains(OKchip) );
-				}else if(playMsj.contains("player" + playTurn ))
+					
+					//
+					// remove chip from our list
+					//
+				}
+				else if(playMsj.contains("player" + playTurn ))
+				{
+					
+
+					String [] broadCastmsj=playMsj.split("_");
+					int playerNum=Integer.parseInt(broadCastmsj[0].substring(6, 7));
+					int playerChip=Integer.parseInt(broadCastmsj[1]);
+					// play game & No need to update gameboard
+					System.out.println(" Received broadCast : playerId : "+playerNum + " player Chip: "+playerChip);
+					//
+					// no need to uptade the gameboard if the broadcast is from myself
+					// 
+					if (playerNum != playTurn)
+					{
+						
+						updateGameBoard(playerNum,playerChip);
+						System.out.println("update gameboard");
+					}
+					else
+					{
+						System.out.println("No need to update the gameboard since the broadcast comes from myself ");
+
+					}
+
+					
+				}
+				else
 				{
 					String [] broadCastmsj=playMsj.split("_");
 					int playerNum=Integer.parseInt(broadCastmsj[0].substring(6, 7));
 					int playerChip=Integer.parseInt(broadCastmsj[1]);
-					updateGameBoard(playerNum,playerChip);
-					System.out.println("update gameboard");
+					
+					System.out.println(" Message recevied : playerId : "+playerNum + " player Chip: "+playerChip);
 
-					// play game & No need to update gameboard
-					System.out.println("play game & update gameboard");
-				}else{
-					String [] broadCastmsj=playMsj.split("_");
-					int playerNum=Integer.parseInt(broadCastmsj[0].substring(6, 7));
-					int playerChip=Integer.parseInt(broadCastmsj[1]);
 					updateGameBoard(playerNum,playerChip);
-					System.out.println("update gameboard");
+					
 				}
-				playMsj=in.readUTF();
+				//playMsj=in.readUTF();
 			}
 
 			System.out.println("Game Oveer");
@@ -165,6 +209,10 @@ public class Player {
 		chips=initMsj[3].split(",");
 
 		System.out.println("Player " + playTurn + " Total Players: " + totalPlayers );
+		
+		//
+		// game board is players + 1 because it includes the Global Track
+		//
 		gameBoard=new Stack [totalPlayers+1];
 		for(int i=0; i<totalPlayers+1; i++)
 		{
@@ -172,7 +220,7 @@ public class Player {
 			gameBoard[i]= new Stack <Integer>();
 		}
 		
-		System.out.print("Chips :" );
+		System.out.print("initGame : Chips " );
 
 		for(int j=0; j<chips.length; j++)
 		{
@@ -180,6 +228,8 @@ public class Player {
 
 			myChips.add(Integer.parseInt(chips[j]));
 		}
+		System.out.println(" ");
+
 	}
 
 	public static void updateGameBoard(int player, int chip){
@@ -249,7 +299,9 @@ public class Player {
 		if(selectedChip>=myChips.size())
 		{
 			PlayMsj="player"+ playTurn+ "_"+"-1"+"_"+selectedTrail+"_"+myChips.size();
-		}else{
+		}
+		else
+		{
 			selectedChip=myChips.remove(selectedChip);
 			PlayMsj="player"+ playTurn+ "_"+selectedChip+"_"+selectedTrail+"_"+myChips.size();
 
@@ -283,15 +335,20 @@ public class Player {
 		DominoeChip prevChip=Dominoes.get(previousChip);
 		DominoeChip newChip=Dominoes.get(chip);
 		
-		System.out.println("validateChip: player: "+player + " chip: " + chip );
+		System.out.println("validateChip: player: "+player + " chip: " + chip + " value : "+newChip.getChip0()+"|"+newChip.getChip1());
 
-		if(prevChip.getShifted()==1){
+		System.out.println("validateChip: prevChip "+ +prevChip.getChip0()+"|"+prevChip.getChip1() +" getShifted : " + prevChip.getShifted()  );
+
+		if(prevChip.getShifted()==1)
+		{
 			if(prevChip.getChip0()== newChip.getChip0())
 			{
 				gameBoard[player].push(previousChip);
 				gameBoard[player].push(chip);
 				return isValid;
-			}else if(prevChip.getChip0()== newChip.getChip1())
+				
+			}
+			else if(prevChip.getChip0()== newChip.getChip1())
 			{
 				Dominoes.remove(chip);
 				newChip.setShifted(1);
@@ -300,13 +357,16 @@ public class Player {
 				gameBoard[player].push(chip);
 				return validAndShifed;
 			}
-		}else{
+		}
+		else
+		{
 			if(prevChip.getChip1()== newChip.getChip0())
 			{
 				gameBoard[player].push(previousChip);
 				gameBoard[player].push(chip);
 				return isValid;
-			}else if(prevChip.getChip1()== newChip.getChip1())
+			}
+			else if(prevChip.getChip1()== newChip.getChip1())
 			{
 				gameBoard[player].push(previousChip);
 				gameBoard[player].push(chip);
@@ -380,16 +440,37 @@ public class Player {
 	}
 
 	public static void printGameBoard(){
-		System.out.println("printGameBoard ()");
+		System.out.println (" >> printGameBoard () :");
 
-		for(int i=0; i<totalPlayers; i++)
+		//
+		// again .. totalPlayer +1 because it includes the global track available for all the players
+		// 
+		for(int i=0; i<totalPlayers+1; i++)
 		{
-			for(int j=0; j<gameBoard[i].size(); j++)
+			System.out.print(" player : " + i + " Chip :");
+
+			for(int j=0; j< gameBoard[i].size(); j++)
 			{
 				System.out.print(printChip(gameBoard[i].get(j)) + " , ");
 			}
 			System.out.println();
 		}
+	}
+	
+	public static int getDominoesPlayerPosition (Vector<Integer> DominoesPlayer, int chipId)
+	{
+		int position =-1;
+		
+		for (int x =0; x< DominoesPlayer.size(); x++)
+		{
+			int temp = DominoesPlayer.get(x);
+			if (temp==chipId)
+			{
+				position = x;
+				break;
+			}
+		}
+		return position;
 	}
 
 
