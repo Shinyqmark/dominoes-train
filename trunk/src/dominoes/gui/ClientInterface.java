@@ -56,7 +56,7 @@ public class ClientInterface extends JFrame implements ActionListener {
 	int isValid=0;
 	static int noValid=1;
 	int validAndShifed=2;
-	PlayerUtils player;
+	public static PlayerUtils player;
 
 
 	public static void main(String[] args) {
