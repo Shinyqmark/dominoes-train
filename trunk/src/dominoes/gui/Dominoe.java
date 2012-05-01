@@ -15,18 +15,20 @@ public class Dominoe  {
 	public int height;
 	Image img;
 	private boolean isFree=true;
+	int positionNumber;
 	
 
 
 
 	private String imgFileName; //= "images/fichaDomino_1.png"; 
 
-	public Dominoe(int _x, int _y, String _imgFile, ImageObserver imgob) {
+	public Dominoe(int _x, int _y, String _imgFile, ImageObserver imgob, int position) {
 
 		this.x=_x;
 		this.y=_y;
 		this.imgFileName=_imgFile;
-
+		this.positionNumber=position;
+		
 		URL url = getClass().getClassLoader().getResource(imgFileName);
 		if (url == null) {
 			System.err.println("Couldn't find file: " + imgFileName);
@@ -99,6 +101,18 @@ public class Dominoe  {
 
 	public void setFree(boolean isFree) {
 		this.isFree = isFree;
+	}
+
+
+
+	public int getPositionNumber() {
+		return positionNumber;
+	}
+
+
+
+	public void setPositionNumber(int positionNumber) {
+		this.positionNumber = positionNumber;
 	}
 
 

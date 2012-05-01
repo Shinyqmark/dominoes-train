@@ -61,7 +61,9 @@ public class ClientInterface extends JFrame implements ActionListener {
 	public static PlayerUtils player;
 	DrawingArea gameboarddraw;
 	public static boolean moveDone=false;
+	int DrawCont=0;
 
+	
 	public static void main(String[] args) {
 
 		new ClientInterface ();
@@ -72,7 +74,7 @@ public class ClientInterface extends JFrame implements ActionListener {
 		Socket s = null;
 		int serverPort = 7896;
 		String data;
-		//		String playMsj;
+		String playMsj;
 		player=new PlayerUtils();
 		player.generateInitalSetDominoes(12);
 
@@ -82,23 +84,48 @@ public class ClientInterface extends JFrame implements ActionListener {
 			out =new DataOutputStream( s.getOutputStream());
 
 			// subscribe to play
-			out.writeUTF(startPlaymsj);
+			//	out.writeUTF(startPlaymsj);
 			data = in.readUTF();
-			System.out.println(data);
-			player.initGame(data);
+			System.out.println ("ThreadID " + Thread.currentThread().getId() + " message received :  " + data);
 
-			// wait the game starts 1st chip
-			data=in.readUTF();
 
-			if(data.contains("player"))
+			if(data.contains("initGame"))
 			{
-				String [] broadCastmsj=data.split("_");
-				int playerNum=Integer.parseInt(broadCastmsj[0].substring(6, 7));
-				int playerChip=Integer.parseInt(broadCastmsj[1]);
-				player.initGameBoard(playerNum,playerChip);
-				System.out.println("init gameboard");
+				player.initGame(data);
 			}
 
+			// wait the game starts 1st chip
+			playMsj=in.readUTF();
+
+
+
+
+			if(playMsj.contains("player"))
+			{
+				String [] broadCastmsj=playMsj.split("_");
+				int playerNum=Integer.parseInt(broadCastmsj[0].substring(6, 7));
+				int playerChip=Integer.parseInt(broadCastmsj[1]);
+
+				System.out.println ("ThreadID " + Thread.currentThread().getId() + " player message received :  playerNum: " + playerNum + " playerChip : " +playerChip );
+
+
+				player.initGameBoard(playerNum,playerChip);
+				System.out.println("init gameboard");
+
+				//
+				// IF this player has the initial chip.. then he needs to remove it from his list...
+				// 
+				if (playerNum ==player.getPlayTurn())
+				{
+					System.out.println ("ThreadID " + Thread.currentThread().getId() + " I'm the one with the initial chip... delete it from my bucket" );
+
+					int z = player.getDominoesPlayerPosition (playerChip);
+				
+				}
+			}
+	
+			System.out.println ("ThreadID " + Thread.currentThread().getId() + " now wait for next message ");
+		
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -115,77 +142,98 @@ public class ClientInterface extends JFrame implements ActionListener {
 		buildInterface (getContentPane());
 
 
-		String playMsj;
+		
 		try {
 			playMsj = in.readUTF();
 
-		while (!playMsj.contains("GAMEOVER"))
-		{
-
-			if(playMsj.contains("ping" + player.getPlayTurn() ))
+			while (!playMsj.contains("GAMEOVER"))
 			{
-				System.out.println ("ThreadID " + Thread.currentThread().getId() + "we just got a ping message... let's start working ! ");
+				DrawCont=0;
+			//	playMsj=in.readUTF();
 
-				while(!moveDone){
-					Thread.sleep(100);
-				}
-				moveDone=false;
-				// send msj
-				String replyMsj;
-				
-				String chipToplay=player.playRound();
-				System.out.println ("ThreadID " + Thread.currentThread().getId() + "Chip to play : " +chipToplay);
+				System.out.println("Msg received from Server : " + playMsj);
 
-				out.writeUTF(chipToplay);
-				replyMsj=in.readUTF();
-				do{
-					if(replyMsj.contains("ERROR"))
-					{
 
-						if(replyMsj.contains(ErrorInvalidChip))
+				if(playMsj.contains("ping" + player.getPlayTurn() ))
+				{
+					System.out.println ("ThreadID " + Thread.currentThread().getId() + "we just got a ping message... let's start working ! ");
+
+					player.printGameBoard();
+					while(!moveDone){
+						Thread.sleep(100);
+					}
+					moveDone=false;
+					// send msj
+					String replyMsj;
+
+					String chipToplay=player.getMsjTosend();
+					System.out.println ("ThreadID " + Thread.currentThread().getId() + "Chip to play : " +chipToplay);
+
+					out.writeUTF(chipToplay);
+					replyMsj=in.readUTF();
+					do{
+						if(replyMsj.contains("ERROR"))
 						{
-							System.out.println(replyMsj);
-							player.backTracking(replyMsj);
-							chipToplay=player.playRound();
-							out.writeUTF(chipToplay);
-							replyMsj=in.readUTF();
 
-						}else if(replyMsj.contains(ErrorEmptyChip))
-						{
-							System.out.println(replyMsj);
-							// Read the chip sent, update player chips & play again
-							int newChip=Integer.parseInt(replyMsj.split("_")[2]);
-							player.updateSelfChips(newChip);
-							chipToplay=player.playRound();
-							out.writeUTF(chipToplay);
-							replyMsj=in.readUTF();
+							if(replyMsj.contains(ErrorInvalidChip))
+							{
+								System.out.println(replyMsj);
+								player.backTracking(replyMsj);
+								//chipToplay=player.playRound();
+								player.printGameBoard();
+								while(!moveDone){
+									Thread.sleep(100);
+								}
+								moveDone=false;
+								
+								out.writeUTF(player.getMsjTosend());
+								replyMsj=in.readUTF();
+
+							}else if(replyMsj.contains(ErrorEmptyChip))
+							{
+								System.out.println(replyMsj);
+								// Read the chip sent, update player chips & play again
+								int newChip=Integer.parseInt(replyMsj.split("_")[2]);
+								player.updateSelfChips(newChip);
+								gameboarddraw.updateSelfChip(newChip);
+								
+								player.printGameBoard();
+								while(!moveDone){
+									Thread.sleep(100);
+								}
+								moveDone=false;
+								System.out.println("Move detected");
+								chipToplay=player.getMsjTosend();
+								System.out.println("Msj to send: " + chipToplay);
+								out.writeUTF(chipToplay);
+								replyMsj=in.readUTF();
+							}
+
 						}
 
-					}
+					}while(!replyMsj.contains(OKchip) );
 
-				}while(!replyMsj.contains(OKchip) );
-			}else if(playMsj.contains("player" + player.getPlayTurn() ))
-			{
-				String [] broadCastmsj=playMsj.split("_");
-				int playerNum=Integer.parseInt(broadCastmsj[0].substring(6, 7));
-				int playerChip=Integer.parseInt(broadCastmsj[1]);
-				player.updateGameBoard(playerNum,playerChip);
-				System.out.println("update gameboard");
-				
-				// play game & No need to update gameboard
-				System.out.println("play game & update gameboard");
-			}else{
-				String [] broadCastmsj=playMsj.split("_");
-				int playerNum=Integer.parseInt(broadCastmsj[0].substring(6, 7));
-				int playerChip=Integer.parseInt(broadCastmsj[1]);
-				int stackSize=player.updateGameBoard(playerNum,playerChip);
-				gameboarddraw.updateBoard(playerNum,playerChip,stackSize);
-				System.out.println("update gameboard");
-			
+				}
+				else if(playMsj.contains("player" + player.getPlayTurn() ))
+				{
+				//	String [] broadCastmsj=playMsj.split("_");
+				//	int playerNum=Integer.parseInt(broadCastmsj[0].substring(6, 7));
+					//int playerChip=Integer.parseInt(broadCastmsj[1]);
+				//	player.updateGameBoard(playerNum,playerChip);
+					// play game & No need to update gameboard
+					System.out.println("My own.. broadcast.. do nothing");
+				}else{
+					String [] broadCastmsj=playMsj.split("_");
+					int playerNum=Integer.parseInt(broadCastmsj[0].substring(6, 7));
+					int playerChip=Integer.parseInt(broadCastmsj[1]);
+					int stackSize=player.updateGameBoard(playerNum,playerChip);
+					gameboarddraw.updateBoard(playerNum,playerChip,stackSize);
+					System.out.println("update gameboard");
+
+				}
+				playMsj=in.readUTF();
+				Thread.sleep(1000);
 			}
-			playMsj=in.readUTF();
-			Thread.sleep(1000);
-		}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -285,13 +333,13 @@ public class ClientInterface extends JFrame implements ActionListener {
 		return playersBar;
 	}
 
-	
-//	public void paint(Graphics g) {
-//		g.setColor(Color.blue);
-//		g.fillRect(100,50,100,100);
-//	}
-//	
-	
+
+	//	public void paint(Graphics g) {
+	//		g.setColor(Color.blue);
+	//		g.fillRect(100,50,100,100);
+	//	}
+	//	
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
@@ -299,14 +347,26 @@ public class ClientInterface extends JFrame implements ActionListener {
 		if(	e.getSource().equals(drawButton))
 		{
 			// SEND MSJ WITH EMPTY CHIP
+			if(DrawCont==0){
+				moveDone=true;
+				player.setEmptyMSj();
+				System.out.println("ClickOnDrawButton");
+				DrawCont++;
+				drawButton.setEnabled(false);
+			}
+			
 
-			System.out.println("ClickOnDrawButton");
-			player.playRound();
 		}
 		if(	e.getSource().equals(passButton))
 		{
-			//
-			System.out.println("ClickOnpassButtonButton");
+			if(DrawCont==1){
+				drawButton.setEnabled(true);
+				moveDone=true;
+				player.setEmptyMSj();
+				DrawCont=0;
+				System.out.println("ClickOnpassButtonButton");
+			}
+			
 		}
 	}
 
