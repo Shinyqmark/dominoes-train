@@ -158,8 +158,10 @@ public class Player {
 					int playerNum=Integer.parseInt(broadCastmsj[0].substring(6, 7));
 					int playerChip=Integer.parseInt(broadCastmsj[1]);
 					int trackAvailable = Integer.parseInt(broadCastmsj[4]);
+					int trackFromPlayer = Integer.parseInt(broadCastmsj[5]);
+
 					// play game & No need to update gameboard
-					System.out.println(" Received broadCast : playerId : "+playerNum + " player Chip: "+playerChip + " trackAvailable :" + trackAvailable);
+					System.out.println(" Received broadCast : playerId : "+playerNum + " player Chip: "+playerChip + " trackAvailable : " + trackAvailable + " trackFromPlayer : " +trackFromPlayer );
 					//
 					// no need to uptade the gameboard if the broadcast is from myself
 					// 
@@ -168,6 +170,12 @@ public class Player {
 
 						if (playerChip != 999)
 						{
+							if (trackFromPlayer != playerNum)
+							{
+								System.out.println(" Player played in a different track.. update the proper variable ");
+								playerNum = trackFromPlayer;
+								
+							}
 							updateGameBoard(playerNum,playerChip);
 							System.out.println("update gameboard");
 						}
@@ -190,11 +198,19 @@ public class Player {
 					String [] broadCastmsj=playMsj.split("_");
 					int playerNum=Integer.parseInt(broadCastmsj[0].substring(6, 7));
 					int playerChip=Integer.parseInt(broadCastmsj[1]);
+					int trackAvailable = Integer.parseInt(broadCastmsj[4]);
+					int trackFromPlayer = Integer.parseInt(broadCastmsj[5]);
 					
-					System.out.println(" Message recevied : playerId : "+playerNum + " player Chip: "+playerChip);
+					System.out.println(" Message recevied : playerId : "+playerNum + " player Chip: "+playerChip + " trackAvailable : " + trackAvailable +" trackFromPlayer : " +trackFromPlayer );
 					
 					if (playerChip != 999)
 					{
+						if (trackFromPlayer != playerNum)
+						{
+							System.out.println(" Player played in a different track.. update the proper variable ");
+							playerNum = trackFromPlayer;
+							
+						}
 						updateGameBoard(playerNum,playerChip);
 					}
 					else
