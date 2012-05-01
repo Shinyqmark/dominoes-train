@@ -320,7 +320,7 @@ public class Server {
 			printTrack (x);
 		}
 	}
-	public void printTrack(int track)
+	public static void printTrack(int track)
 	{
 		for (int x = 0 ; x< Track[track].size(); x ++)
 		{
@@ -441,6 +441,21 @@ public class Server {
 			result = Integer.parseInt(temp[value]);
 			return result;
 		}
+		public int getDominoesPlayerPosition (ArrayList<Integer> DominoesPlayer, int chipId)
+		{
+			int position =-1;
+			
+			for (int x =0; x< DominoesPlayer.size(); x++)
+			{
+				int temp = DominoesPlayer.get(x);
+				if (temp==chipId)
+				{
+					position = x;
+					break;
+				}
+			}
+			return position;
+		}
 		
 		public String validateTrackValues (ArrayList <TrackingValue> trackValues , DominoeChip playerChip, int trackFromPlayer, int isShifted)
 		{
@@ -454,6 +469,8 @@ public class Server {
 				{
 					if ( isShifted ==1)
 					{
+						System.out.println ("ThreadID " + Thread.currentThread().getId() + " Shifted = 1 :  Chip  idChip [1]" + playerChip.getId() + " value "+playerChip.getChip0()+"_"+ playerChip.getChip1());
+
 						if (temp.getValue() == playerChip.getChip1())
 						{
 							msg = OKchip;
@@ -470,6 +487,8 @@ public class Server {
 					}
 					else 
 					{
+						System.out.println ("ThreadID " + Thread.currentThread().getId() + " Shifted = 0 :  Chip  idChip [1]" + playerChip.getId() + " value "+playerChip.getChip0()+"_"+ playerChip.getChip1());
+
 						if (temp.getValue() == playerChip.getChip0())
 						{
 							msg = OKchip;
@@ -621,6 +640,13 @@ public class Server {
 						if (msgOutput.contains(OKchip))
 						{
 							foundChip =true;
+							
+							if (isShifted == 1)
+							{
+								playerChip.setShifted(isShifted);
+								System.out.println ("ThreadID " + Thread.currentThread().getId() + "  shifted the chip ");
+
+							}
 						}
 					}
 					// 3. Validate chip... needs to follow the rules
@@ -628,15 +654,25 @@ public class Server {
 								
 					if (foundChip)
 					{
-						System.out.println ("ThreadID " + Thread.currentThread().getId() + "  remove chip from player's list.. but add it to the track one ");
+						System.out.println ("ThreadID " + Thread.currentThread().getId() + "  remove chip "+playerChip.getId()+" from player's list.. but add it to the track one ");
 
 						// original
 						//Server.Track[trackValue.getTrack()].push(playerChip);
+						
+						printDominoePerPlayerList (DominoesPlayer);
+						
 						Server.Track[trackFromPlayer].push(playerChip);
+						
+						printTrack (trackFromPlayer);
+						
 						
 						// RJUA check this.. it might be wrong..
 				
-						z = DominoesPlayer.indexOf(playerChip);
+						z = getDominoesPlayerPosition (DominoesPlayer, playerChip.getId());
+						
+					//	z = DominoesPlayer.indexOf(playerChip);
+						System.out.println ("ThreadID " + Thread.currentThread().getId() + "  find chip in position "+z);
+
 						DominoesPlayer.remove(z);
 						
 						if (DominoesPlayer.size() == 0 )
