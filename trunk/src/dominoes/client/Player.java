@@ -32,6 +32,9 @@ public class Player {
 	int isValid=0;
 	static int noValid=1;
 	int validAndShifed=2;
+	
+	public static boolean TrainPerTrack [] = null; 
+
 
 	public static void main (String args[]) {
 		Socket s = null;
@@ -154,16 +157,25 @@ public class Player {
 					String [] broadCastmsj=playMsj.split("_");
 					int playerNum=Integer.parseInt(broadCastmsj[0].substring(6, 7));
 					int playerChip=Integer.parseInt(broadCastmsj[1]);
+					int trackAvailable = Integer.parseInt(broadCastmsj[4]);
 					// play game & No need to update gameboard
-					System.out.println(" Received broadCast : playerId : "+playerNum + " player Chip: "+playerChip);
+					System.out.println(" Received broadCast : playerId : "+playerNum + " player Chip: "+playerChip + " trackAvailable :" + trackAvailable);
 					//
 					// no need to uptade the gameboard if the broadcast is from myself
 					// 
 					if (playerNum != playTurn)
 					{
-						
-						updateGameBoard(playerNum,playerChip);
-						System.out.println("update gameboard");
+
+						if (playerChip != 999)
+						{
+							updateGameBoard(playerNum,playerChip);
+							System.out.println("update gameboard");
+						}
+						else
+						{
+							System.out.println(" no update due to chip 999 ");
+
+						}
 					}
 					else
 					{
@@ -180,8 +192,16 @@ public class Player {
 					int playerChip=Integer.parseInt(broadCastmsj[1]);
 					
 					System.out.println(" Message recevied : playerId : "+playerNum + " player Chip: "+playerChip);
+					
+					if (playerChip != 999)
+					{
+						updateGameBoard(playerNum,playerChip);
+					}
+					else
+					{
+						System.out.println(" no update due to chip 999 ");
 
-					updateGameBoard(playerNum,playerChip);
+					}
 					
 				}
 				//playMsj=in.readUTF();
@@ -233,6 +253,8 @@ public class Player {
 	}
 
 	public static void updateGameBoard(int player, int chip){
+		System.out.println("updateGameBoard: player:  " + player +" chip: "+chip );
+
 		gameBoard[player].push(chip);
 		// repaint
 	}
@@ -274,8 +296,11 @@ public class Player {
 		InputStreamReader converter = new InputStreamReader(System.in);
 		BufferedReader in = new BufferedReader(converter);
 		
-		
-		//printChips (myChips);
+		System.out.print("These are your chips : ");
+
+		printChips (myChips);
+		System.out.println(" ");
+
 		printGameBoard();
 
 		System.out.println("Select the trail to play");
@@ -290,7 +315,7 @@ public class Player {
 			//for(int i=0; i<myChips.size(); i++ )System.out.print(i +":"+ myChips.get(i) + ",");
 			printChips(myChips);
 			selectedChip=Integer.parseInt(in.readLine());
-			if(selectedChip ==99)
+			if(selectedChip ==999)
 			{
 				System.out.println(" User does not have a valid chip... let's request one.. ");
 				//
@@ -310,7 +335,7 @@ public class Player {
 	
 		if(selectedChip>=myChips.size())
 		{
-			PlayMsj="player"+ playTurn+ "_"+"-1"+"_"+selectedTrail+"_"+myChips.size();
+			PlayMsj="player"+ playTurn+ "_"+"999"+"_"+selectedTrail+"_"+myChips.size();
 		}
 		else
 		{
