@@ -589,7 +589,7 @@ public class Server {
 					//
 					// send broadcast to all the players..
 					//
-					String playMsj="player"+idPlayer+"_"+ Server.initialChip + "_" + DominoesPlayer.size() + "_" + (Dominoes.size()-Server.DominoesAssigned +"_0"); // broadcast
+					String playMsj="player"+idPlayer+"_"+ Server.initialChip + "_" + DominoesPlayer.size() + "_" + (Dominoes.size()-Server.DominoesAssigned +"_0"+idPlayer); // broadcast
 			
 					try {
 						Server.communication.broadCast(playMsj);
@@ -655,17 +655,13 @@ public class Server {
 					if (foundChip)
 					{
 						System.out.println ("ThreadID " + Thread.currentThread().getId() + "  remove chip "+playerChip.getId()+" from player's list.. but add it to the track one ");
-
-						// original
-						//Server.Track[trackValue.getTrack()].push(playerChip);
-						
+				
 						printDominoePerPlayerList (DominoesPlayer);
 						
 						Server.Track[trackFromPlayer].push(playerChip);
 						
 						printTrack (trackFromPlayer);
-						
-				
+
 						z = getDominoesPlayerPosition (DominoesPlayer, playerChip.getId());
 						
 						System.out.println ("ThreadID " + Thread.currentThread().getId() + "  find chip in position "+z);
@@ -693,7 +689,7 @@ public class Server {
 						
 						Server.communication.sendMessage(OKchip,  idPlayer);
 						
-						String playMsj="player"+idPlayer+"_"+playerChip.getId() + "_" + DominoesPlayer.size() + "_" + (Dominoes.size()-Server.DominoesAssigned) +"_0"; 
+						String playMsj="player"+idPlayer+"_"+playerChip.getId() + "_" + DominoesPlayer.size() + "_" + (Dominoes.size()-Server.DominoesAssigned) +"_0_"+trackFromPlayer; 
 						
 						try {
 							Server.communication.broadCast(playMsj);
@@ -724,7 +720,7 @@ public class Server {
 						{
 							System.out.println ("ThreadID " + Thread.currentThread().getId() + " since this player has already asked for a chip.. no need to get a new one");
 							Server.communication.sendMessage(OKchip, idPlayer);
-							String playMsj="player"+idPlayer+"_999_" + DominoesPlayer.size() + "_" + (Dominoes.size()-Server.DominoesAssigned) +"_1"; 
+							String playMsj="player"+idPlayer+"_999_" + DominoesPlayer.size() + "_" + (Dominoes.size()-Server.DominoesAssigned) +"_1_"+idPlayer; 
 							
 							try {
 								Server.communication.broadCast(playMsj);
