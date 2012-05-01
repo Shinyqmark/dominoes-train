@@ -7,6 +7,7 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
+import java.util.Stack;
 import java.util.Vector;
 
 import javax.swing.JPanel;
@@ -30,6 +31,7 @@ public class DrawingArea extends JPanel  {
 	String i="0";
 	String j="0";
 	private String imgFileName = "images/"+ i + "_" + j + ".png";//fichaDomino_2.png";
+	private static boolean moveDone=false;
 
 	public DrawingArea (){
 		MovingAdapter ma = new MovingAdapter();
@@ -49,17 +51,6 @@ public class DrawingArea extends JPanel  {
 			}
 			newy=newy+55;
 		}
-		//String imgNAme= imgFileName + 
-		//		for(int i=0; i<10; i++)
-		//		{
-		//			if(i%2==0){
-		//				playerChips[i]= new Dominoe (90+(i*80),0,imgFileName,this);
-		//			}else{
-		//				playerChips[i]= new Dominoe (90+(i*80),45,imgFileName,this);
-		//			}
-		//			
-		//		}
-
 
 		int cont=0;
 		for(int i=0; i<=12; i++)
@@ -75,6 +66,9 @@ public class DrawingArea extends JPanel  {
 				cont++;
 			}
 		}
+		
+	
+		
 		Vector <Integer> playChips= ClientInterface.player.getMyChips();
 		for(int i=0; i<playChips.size(); i++)
 			playerChips[playChips.get(i)].setX(10+(i*80));
@@ -91,7 +85,7 @@ public class DrawingArea extends JPanel  {
 
 
 
-
+		// draw gameboard
 		g2d.setColor(Color.gray);
 		for (int i=0; i<9; i++){
 			newx=x;
@@ -112,6 +106,7 @@ public class DrawingArea extends JPanel  {
 				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
 
+		// draw chip images
 		AffineTransform transform = new AffineTransform();  // identity transform
 		Vector <Integer> playChips= ClientInterface.player.getMyChips();
 		for(int i=0; i<playChips.size(); i++)
@@ -123,9 +118,46 @@ public class DrawingArea extends JPanel  {
 			g2d.drawImage(playerChips[playChips.get(i)].getImg(), transform, this);	
 		}
 
-
+		
+		Stack<Integer>[] stackTemp=ClientInterface.player.getGameBoard();
+		for(int i=0; i<stackTemp.length; i++ )
+		{
+			for (int j=0; j<stackTemp[i].size(); j++)
+			{
+				transform = new AffineTransform();
+				transform.translate(playerChips[stackTemp[i].get(j)].x, playerChips[stackTemp[i].get(j)].y);
+				g2d.drawImage(playerChips[stackTemp[i].get(j)].getImg(), transform, this);	
+			}
+		}
+		
+		
+		//draw Initial chip
+		int fisrtChip=ClientInterface.player.getFisrtChip();
+		playerChips[fisrtChip].setX(1000);
+		playerChips[fisrtChip].setY(45);
+		transform = new AffineTransform();
+		transform.translate(playerChips[fisrtChip].x, playerChips[fisrtChip].y);
+		g2d.drawImage(playerChips[fisrtChip].getImg(), transform, this);	
 
 	}
+
+	public void updateBoard (int track, int chip, int position){
+		
+		playerChips[chip].setX(zrectArray[track][position-2].x);
+		playerChips[chip].setY(zrectArray[track][position-2].y);
+		repaint();
+	}
+	
+	
+	
+ 	public boolean isMoveDone() {
+		return moveDone;
+	}
+
+	public static void setMoveDone(boolean _moveDone) {
+		moveDone = _moveDone;
+	}
+
 
 
 	class MovingAdapter extends MouseAdapter {
@@ -138,20 +170,6 @@ public class DrawingArea extends JPanel  {
 			x = e.getX();
 			y = e.getY();
 
-		}
-
-		public void mouseReleased(MouseEvent e) {
-
-			//			x = e.getX();
-			//			y = e.getY();
-			//
-			//			for(int i=0; i<zrectArray.length; i++ )
-			//			{
-			//				if (zrectArray[i].isHit(x, y)) {
-			//					System.out.println("Zrect number " + i + " is Hit");
-			//					// repaint();
-			//				}
-			//			}
 		}
 
 		public void mouseClicked(MouseEvent e){
@@ -178,12 +196,13 @@ public class DrawingArea extends JPanel  {
 					{
 						if (zrectArray[i][j].isHit(x, y)) {
 								System.out.println("Zrect number " + i + "," + j + " is Hit. In " + x +"," + y + "Dominochip x/y" + zrectArray[i][j].x + "/" + zrectArray[i][j].y);
-								if(ChipSelected>=0)
+								if(ChipSelected>=0 && ClientInterface.player.validateTrack(i) && ClientInterface.player.validateChip(i, ChipSelected) !=1 )
 								{
 									playerChips[ChipSelected].setX(zrectArray[i][j].x);
 									playerChips[ChipSelected].setY(zrectArray[i][j].y);
 									repaint();
 									ChipSelected=-1;
+									ClientInterface.moveDone=true;
 								}
 								break;
 							}

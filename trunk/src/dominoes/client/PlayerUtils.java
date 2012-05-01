@@ -27,7 +27,7 @@ public class PlayerUtils {
 	public static String ErrorSkipTurn="OK_Skip";
 	public static String ErrorEmptyChip="ERROR_EmptyChip";
 	public static String OKchip="OK_Skip";
-	public Stack<Integer> [] gameBoard;
+	private Stack<Integer> [] gameBoard;
 	private Vector <Integer> myChips = new Vector <Integer> (); 
 
 	int isValid=0;
@@ -46,8 +46,8 @@ public class PlayerUtils {
 		chips=initMsj[3].split(",");
 		//fisrtChip=Integer.parseInt(initMsj[4]);
 		System.out.println("Player " + playTurn + "Total Players: " + totalPlayers +" chips: " + chips.toString());
-		gameBoard=new Stack [totalPlayers];
-		for(int i=0; i<totalPlayers; i++)
+		gameBoard=new Stack [totalPlayers+1];
+		for(int i=0; i<totalPlayers+1; i++)
 		{
 			gameBoard[i]= new Stack <Integer>();
 		}
@@ -57,13 +57,17 @@ public class PlayerUtils {
 		}
 	}
 	
-	public void updateGameBoard(int player, int chip){
+	public int updateGameBoard(int player, int chip){
 		gameBoard[player].push(chip);
-		// repaint
+		return gameBoard[player].size();
 	}
 	
 	public void initGameBoard(int player, int chip){
-		for(int i=0; i<totalPlayers; i++ ){
+		//RJUA
+		// totalPlayer +1 ... this is because the Global track..
+		//
+		fisrtChip=chip;
+		for(int i=0; i<totalPlayers+1; i++ ){
 			gameBoard[i].push(chip);
 		}
 		System.out.println("Ficha Inicial--> " + printChip(chip));
@@ -251,5 +255,53 @@ public class PlayerUtils {
 		this.myChips = myChips;
 	}
 
+	public int getFisrtChip() {
+		return fisrtChip;
+	}
+
+	public void setFisrtChip(int fisrtChip) {
+		this.fisrtChip = fisrtChip;
+	}
+
+	public int getPlayTurn() {
+		return playTurn;
+	}
+
+	public void setPlayTurn(int playTurn) {
+		this.playTurn = playTurn;
+	}
+
+	public int getTotalPlayers() {
+		return totalPlayers;
+	}
+
+	public void setTotalPlayers(int totalPlayers) {
+		this.totalPlayers = totalPlayers;
+	}
+
+	public int getTopChipFromtrack(int track) {
+		int topChip=gameBoard[track].pop();
+		gameBoard[track].push(topChip);
+		return topChip; 
+	}
+
+	// validate track
+	
+	public boolean validateTrack(int track){
+		
+		if(track != playTurn &&  track != totalPlayers) // falta agregar lo del trenecito
+			return false;
+		
+		return true;
+	}
+
+	public Stack<Integer>[] getGameBoard() {
+		return gameBoard;
+	}
+
+	public void setGameBoard(Stack<Integer>[] gameBoard) {
+		this.gameBoard = gameBoard;
+	}
+	
 	
 }

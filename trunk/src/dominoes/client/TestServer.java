@@ -39,7 +39,7 @@ class Connection extends Thread {
 	public  int turnPlayer=3;
 	public  int turn=3;
 	public  int chip=6;
-	public  String chipsPlayer="1,4,23,34,15,6";
+	public  String chipsPlayer="1,4,23,34,25,6";
 	
 	public Connection (Socket aClientSocket) {
 		try {
@@ -62,14 +62,15 @@ class Connection extends Thread {
 				
 				// send first chip
 				//String playMsj="player"+0+"_"+ CHIP + "_" + "restoFichas";
-				String playMsj="player"+0+"_"+ 12 + "_" + "restoFichas";
+				String playMsj="player"+0+"_"+ 13 + "_" + "restoFichas";
 				out.writeUTF(playMsj);
 				
 				
-				for(int pTurn=1; pTurn<totalPlayers; pTurn++ )
+				for(int pTurn=0; pTurn<turnPlayer; pTurn++ )
 				{
-					playMsj="player"+pTurn+"_"+ (chip+pTurn);
-					out.writeUTF(playMsj);
+						playMsj="player"+pTurn+"_"+ (14+pTurn);
+						out.writeUTF(playMsj);
+						//	playMsj="player"+0+"_"+ 14;
 				}
 				
 				
