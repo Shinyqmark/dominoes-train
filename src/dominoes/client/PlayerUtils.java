@@ -29,7 +29,8 @@ public class PlayerUtils {
 	public static String OKchip="OK_Skip";
 	private Stack<Integer> [] gameBoard;
 	private Vector <Integer> myChips = new Vector <Integer> (); 
-
+	private String msjTosend;
+	
 	int isValid=0;
 	static int noValid=1;
 	int validAndShifed=2;
@@ -170,11 +171,13 @@ public class PlayerUtils {
 				//Dominoes.remove(chip);
 				newChip.setShifted(1);
 				Dominoes.set(chip, newChip);
+				System.out.println("Valida an shifted");
 				return validAndShifed;
 			}
 		}
 		
 		gameBoard[player].push(previousChip);
+		System.out.println("Not a valid Chip " + chip);
 		return noValid;
 	}
 
@@ -290,7 +293,11 @@ public class PlayerUtils {
 	public boolean validateTrack(int track){
 		
 		if(track != playTurn &&  track != totalPlayers) // falta agregar lo del trenecito
+			
+			{
+			System.out.println("Not a valid Track");
 			return false;
+			}
 		
 		return true;
 	}
@@ -302,6 +309,37 @@ public class PlayerUtils {
 	public void setGameBoard(Stack<Integer>[] gameBoard) {
 		this.gameBoard = gameBoard;
 	}
+
+	public String getMsjTosend() {
+		return msjTosend;
+	}
+
+	public void setMsjTosend(int selectedTrack, int selectedChip, int isShifted) {
+		this.msjTosend = "player"+ this.playTurn+ "_"+selectedChip+"_"+selectedTrack+"_"+myChips.size()+"_"+isShifted;
+	}
+	
+	public void setEmptyMSj()
+	{
+		this.msjTosend = "player"+ this.playTurn+ "_"+999+"_"+this.playTurn+"_"+myChips.size()+"_"+0;
+	}
+	
+	public int getDominoesPlayerPosition (int chipId)
+	{
+		int position =-1;
+		
+		for (int x =0; x< this.myChips.size(); x++)
+		{
+			int temp = this.myChips.get(x);
+			if (temp==chipId)
+			{
+				position = x;
+				this.myChips.remove(position);
+				break;
+			}
+		}
+		return position;
+	}
+	
 	
 	
 }
