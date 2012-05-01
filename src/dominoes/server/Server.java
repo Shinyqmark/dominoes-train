@@ -625,7 +625,7 @@ public class Server {
 					// 2. Wait for their chip...or empty
 					//
 					
-					if (chipFromPlayer == -1)
+					if (chipFromPlayer == 999 )
 					{
 						foundChip =false;
 					}
@@ -665,12 +665,9 @@ public class Server {
 						
 						printTrack (trackFromPlayer);
 						
-						
-						// RJUA check this.. it might be wrong..
 				
 						z = getDominoesPlayerPosition (DominoesPlayer, playerChip.getId());
 						
-					//	z = DominoesPlayer.indexOf(playerChip);
 						System.out.println ("ThreadID " + Thread.currentThread().getId() + "  find chip in position "+z);
 
 						DominoesPlayer.remove(z);
@@ -727,7 +724,7 @@ public class Server {
 						{
 							System.out.println ("ThreadID " + Thread.currentThread().getId() + " since this player has already asked for a chip.. no need to get a new one");
 							Server.communication.sendMessage(OKchip, idPlayer);
-							String playMsj="player"+idPlayer+"_-1_" + DominoesPlayer.size() + "_" + (Dominoes.size()-Server.DominoesAssigned) +"_1"; 
+							String playMsj="player"+idPlayer+"_999_" + DominoesPlayer.size() + "_" + (Dominoes.size()-Server.DominoesAssigned) +"_1"; 
 							
 							try {
 								Server.communication.broadCast(playMsj);
@@ -799,7 +796,7 @@ public class Server {
 			int serverPort = 9997; // the server port
 			ServerSocket listenSocket = new ServerSocket(serverPort);
 			
-			while(x <1) 
+			while(x <2) 
 			{
 				System.out.println ("ThreadID " + Thread.currentThread().getId() + " Waiting for a conection ");
 
