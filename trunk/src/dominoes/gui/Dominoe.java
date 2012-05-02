@@ -14,7 +14,7 @@ public class Dominoe  {
 	public int width;
 	public int height;
 	Image img;
-	private boolean isFree=true;
+	private boolean isShift=false;
 	int positionNumber;
 	
 
@@ -95,12 +95,12 @@ public class Dominoe  {
 		this.img = img;
 	}
 	
-	public boolean isFree() {
-		return isFree;
+	public boolean isShift() {
+		return isShift;
 	}
 
-	public void setFree(boolean isFree) {
-		this.isFree = isFree;
+	public void setIsShift(boolean isShift) {
+		this.isShift = isShift;
 	}
 
 
