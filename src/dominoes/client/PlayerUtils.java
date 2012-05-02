@@ -45,21 +45,29 @@ public class PlayerUtils {
 		playTurn=Integer.parseInt(initMsj[1]);
 		totalPlayers=Integer.parseInt(initMsj[2]);
 		chips=initMsj[3].split(",");
-		//fisrtChip=Integer.parseInt(initMsj[4]);
-		System.out.println("Player " + playTurn + "Total Players: " + totalPlayers +" chips: " + chips.toString());
+
+		System.out.println("Player " + playTurn + "Total Players: " + totalPlayers );
 		gameBoard=new Stack [totalPlayers+1];
+		
 		for(int i=0; i<totalPlayers+1; i++)
 		{
 			gameBoard[i]= new Stack <Integer>();
 		}
+		
+		System.out.print("initGame : Chips " );
+		
 		for(int j=0; j<chips.length; j++)
 		{
+			System.out.print(" : "+ chips[j]);
 			myChips.add(Integer.parseInt(chips[j]));
 		}
+		System.out.println(" ");
 	}
 	
 	public int updateGameBoard(int player, int chip){
+		System.out.println("updateGameBoard: player:  " + player +" chip: "+chip );
 		gameBoard[player].push(chip);
+		printGameBoard();
 		return gameBoard[player].size();
 	}
 	
@@ -77,27 +85,33 @@ public class PlayerUtils {
 	}
 
 	public void updateSelfChips(int chip){
+		System.out.println("updateSelfChips :  chip: "+chip );
+
 		myChips.add(chip);
+		
+		printChips(myChips);
 		// repaint
 	}
 
 	public void backTracking(String dataReply ){
 
-
+		System.out.println("backTracking : dataReply : "+dataReply );
 		int myChip=Integer.parseInt(dataReply.split("_")[2]);
 		int trail=Integer.parseInt(dataReply.split("_")[3]);
 		//myChips.add(gameBoard[trail].pop());
 		gameBoard[trail].pop();
 		myChips.add(myChip);
+		
+		printChips(myChips);
 		//repaint
 	}
 	
-	public String playRound() {
+	public String playRound() {   // not used.. instead wait 4 user move
 		// player#_chip_trail_chipsTail
 		int selectedChip;
 		String selectedTrail;
-		String PlayMsj="";;
-
+		String PlayMsj="";
+		
 		InputStreamReader converter = new InputStreamReader(System.in);
 		BufferedReader in = new BufferedReader(converter);
 
@@ -135,6 +149,37 @@ public class PlayerUtils {
 		return PlayMsj;
 	}
 	
+	
+	public void updateShifted(int player, int chip, int shifted)
+	{
+		
+		System.out.println("updateShifted: player: "+player + " chip: " + chip + " shifted : " + shifted );
+
+
+		DominoeChip lastChip = getDominoeFromId(chip);
+		if (lastChip == null)
+		{
+			System.out.println (" ************** > updateShifted () : completely unexpected!!!! Chip : "+chip+"  ****************");
+		}
+		
+		System.out.println("updateShifted: foundChip: "+lastChip.getId() + " chip: " +lastChip.getChip0()+"|"+lastChip.getChip1() + " isShifted : "+ lastChip.getShifted());
+
+		if (shifted != lastChip.getShifted())
+		{
+			lastChip.setShifted(shifted);
+			System.out.println("updateShifted: After setting shifted: "+lastChip.getId() + " chip: " +lastChip.getChip0()+"|"+lastChip.getChip1() + " isShifted : "+ lastChip.getShifted());
+		}
+		else
+		{
+			System.out.println("updateShifted: no need to update shifted " );
+
+		}
+		
+		
+
+
+	}
+	
 	public int validateChip(int player, int chip){
 		int isValid=0;
 		int noValid=1;
@@ -142,6 +187,12 @@ public class PlayerUtils {
 		int previousChip=gameBoard[player].pop();
 		DominoeChip prevChip=Dominoes.get(previousChip);
 		DominoeChip newChip=Dominoes.get(chip);
+		
+
+		System.out.println("validateChip: player: "+player + " chip: " + chip + " value : "+newChip.getChip0()+"|"+newChip.getChip1());
+
+		System.out.println("validateChip: prevChip "+ +prevChip.getChip0()+"|"+prevChip.getChip1() +" getShifted : " + prevChip.getShifted()  );
+
 		
 		if(prevChip.getShifted()==1){
 			if(prevChip.getChip0()== newChip.getChip0())
@@ -151,7 +202,7 @@ public class PlayerUtils {
 				return isValid;
 			}else if(prevChip.getChip0()== newChip.getChip1())
 			{
-				Dominoes.remove(chip);
+			//	Dominoes.remove(chip);
 				newChip.setShifted(1);
 				Dominoes.set(chip, newChip);
 				gameBoard[player].push(previousChip);
@@ -229,9 +280,13 @@ public class PlayerUtils {
 	}
 	
 	public void printChips(Stack <Integer> myChips){
+		System.out.print("printChips Stack : ");
 		
 		for(int i=0; i<myChips.size(); i++){
-			System.out.print(i +":" +printChip(myChips.get(i)) + " , ");
+			int  temp = myChips.get(i);
+			System.out.print(i +":");
+			String rs = printChip(temp);
+			System.out.print(rs + " , ");
 		}
 	}
 	
@@ -240,16 +295,53 @@ public class PlayerUtils {
 	}
 
 	public void printGameBoard(){
-		for(int i=0; i<totalPlayers; i++)
+		System.out.println (" >> printGameBoard () :");
+
+		//
+		// again .. totalPlayer +1 because it includes the global track available for all the players
+		// 
+		for(int i=0; i<totalPlayers+1; i++)
 		{
-			for(int j=0; j<gameBoard[i].size(); j++)
+			System.out.print(" player : " + i + " SizeOfGameBoard : " + gameBoard[i].size() +" Chip : ");
+
+			for(int j=0; j< gameBoard[i].size(); j++)
 			{
-				System.out.print(printChip(gameBoard[i].get(j)) + " , ");
+				int temp = gameBoard[i].get(j);
+				
+				System.out.print("j:"+j +" ");
+				String rs = printChip(temp);
+				System.out.print(rs + " , ");
 			}
 			System.out.println();
 		}
 	}
 
+	
+	public DominoeChip getDominoeFromId( int chipId )
+	{
+		DominoeChip returnChip =null;
+		
+		for (int x =0; x< Dominoes.size(); x++)
+		{
+			DominoeChip temp = Dominoes.get(x);
+			if (temp.getId()==chipId)
+			{
+				returnChip = temp;
+				break;
+			}
+		}
+		if (returnChip == null)
+		{
+			System.out.print(" DominoeChip : This is pretty bad... what was the chipID " + chipId);
+
+		}
+		return returnChip;
+		
+	}
+
+	
+	
+	
 	public Vector<Integer> getMyChips() {
 		return myChips;
 	}

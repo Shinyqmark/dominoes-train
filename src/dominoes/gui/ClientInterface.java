@@ -25,7 +25,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import dominoes.client.Player;
 import dominoes.client.PlayerUtils;
 import dominoes.server.DominoeChip;
 
@@ -149,6 +148,7 @@ public class ClientInterface extends JFrame implements ActionListener {
 			while (!playMsj.contains("GAMEOVER"))
 			{
 				DrawCont=0;
+				drawButton.setEnabled(true);
 			//	playMsj=in.readUTF();
 
 				System.out.println("Msg received from Server : " + playMsj);
