@@ -562,6 +562,7 @@ public class Server {
 			///
 			boolean needsToWait = true;
 			boolean noMoreChips = false;
+			boolean repeatMula = false;
 			
 			while (true)
 			{
@@ -613,9 +614,10 @@ public class Server {
 					String msg="ping"+idPlayer;
 					String msgFromPlayer="";
 					
-					if (needsToWait== true)
+					if (needsToWait== true || repeatMula)
 					{
 						Server.communication.sendMessage(msg, idPlayer);
+						repeatMula=false;
 					}
 					msgFromPlayer = Server.communication.receiveMessage(idPlayer);
 
@@ -694,6 +696,18 @@ public class Server {
 
 						needsToWait = true;
 						
+						//
+						// RJUA : IF the chip is mula.. that means that the player should repeat his move..
+						// so.. no wait this time
+						//
+						if(playerChip.getMula()==1)
+						{
+							System.out.println ("ThreadID " + Thread.currentThread().getId() + " The player selected a 'mula' , it will have another chance ");
+							needsToWait = false;
+							repeatMula = true;
+							
+						}
+						
 						Server.communication.sendMessage(OKchip,  idPlayer);
 						
 						//
@@ -720,10 +734,6 @@ public class Server {
 							{
 								DominoesPlayer.add(returnFreeChip);
 								Server.communication.sendMessage(ErrorEmptyChip+"_"+returnFreeChip, idPlayer);
-								//
-								// TODO : new broadcast msg
-								//		Server.communication.sendMessage(ErrorEmptyChip+"_"+returnFreeChip, idPlayer);
-
 								
 							}
 							else
@@ -731,6 +741,13 @@ public class Server {
 								System.out.println ("ThreadID " + Thread.currentThread().getId() + " no more chips cuz we do not have any of those... ");
 								Server.communication.sendMessage(OKchip, idPlayer);
 								noMoreChips = true;
+								
+								
+								String playMsj="player"+idPlayer+"_999_" + DominoesPlayer.size() + "_" + (Dominoes.size()-Server.DominoesAssigned) +"_1_"+idPlayer+"_0"; 
+								
+								try {
+									Server.communication.broadCast(playMsj);
+								} catch (IOException e) {e.printStackTrace();}
 							}
 						}
 						else
@@ -762,6 +779,10 @@ public class Server {
 							if ( noMoreChips == true)
 							{
 								needsToWait =true;
+								System.out.println ("ThreadID " + Thread.currentThread().getId() + " playerID : " + idPlayer + " set their train track flag - noMoreChips ");
+
+								Server.TrainPerTrack[idPlayer] = true;
+								
 							}
 							
 						}
@@ -822,7 +843,7 @@ public class Server {
 			int serverPort = 9997; // the server port
 			ServerSocket listenSocket = new ServerSocket(serverPort);
 			
-			while(x <2) 
+			while(x <4) 
 			{
 				System.out.println ("ThreadID " + Thread.currentThread().getId() + " Waiting for a conection ");
 
@@ -961,14 +982,14 @@ public class Server {
 					
 					
 					try {
-						System.out.println ("ThreadID " + Thread.currentThread().getId() + " main thread will wait ");
+						//System.out.println ("ThreadID " + Thread.currentThread().getId() + " main thread will wait ");
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {e.printStackTrace();}
 					
 					synchronized (players.get(playerMove))
 					{
 						flag = players.get(playerMove).getMoveDone();
-						System.out.println ("ThreadID " + Thread.currentThread().getId() + " Flag value " + flag);
+					//	System.out.println ("ThreadID " + Thread.currentThread().getId() + " Flag value " + flag);
 					}
 				}
 				playerMove = server.getNextPlayer(playerMove);
