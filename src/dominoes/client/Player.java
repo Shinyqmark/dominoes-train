@@ -459,6 +459,8 @@ public class Player {
 		{
 			if(prevChip.getChip0()== newChip.getChip0())
 			{
+				System.out.println("validateChip: isValid - shifted = 1"  );
+
 				gameBoard[player].push(previousChip);
 				gameBoard[player].push(chip);
 				return isValid;
@@ -466,7 +468,9 @@ public class Player {
 			}
 			else if(prevChip.getChip0()== newChip.getChip1())
 			{
-				Dominoes.remove(chip);
+				System.out.println("validateChip: validAndShifed - shifted = 1"  );
+
+				//Dominoes.remove(chip);
 				newChip.setShifted(1);
 				Dominoes.set(chip, newChip);
 				gameBoard[player].push(previousChip);
@@ -478,12 +482,16 @@ public class Player {
 		{
 			if(prevChip.getChip1()== newChip.getChip0())
 			{
+				System.out.println("validateChip: isValid - shifted = 0"  );
+
 				gameBoard[player].push(previousChip);
 				gameBoard[player].push(chip);
 				return isValid;
 			}
 			else if(prevChip.getChip1()== newChip.getChip1())
 			{
+				System.out.println("validateChip: validAndShifed - shifted = 0"  );
+
 				gameBoard[player].push(previousChip);
 				gameBoard[player].push(chip);
 				//Dominoes.remove(chip);

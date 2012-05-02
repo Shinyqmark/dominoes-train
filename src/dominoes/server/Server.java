@@ -561,9 +561,12 @@ public class Server {
 			// server will call them all
 			///
 			boolean needsToWait = true;
+			boolean noMoreChips = false;
 			
 			while (true)
 			{
+				noMoreChips = false;
+				
 				if (needsToWait)
 
 				{
@@ -723,6 +726,12 @@ public class Server {
 
 								
 							}
+							else
+							{
+								System.out.println ("ThreadID " + Thread.currentThread().getId() + " no more chips cuz we do not have any of those... ");
+								Server.communication.sendMessage(OKchip, idPlayer);
+								noMoreChips = true;
+							}
 						}
 						else
 						{
@@ -744,7 +753,17 @@ public class Server {
 						//
 						if ( needsToWait )
 						{
+							
 							needsToWait = false;
+							
+							//
+							//this is an special case when the player does not have any extra chips..
+							//
+							if ( noMoreChips == true)
+							{
+								needsToWait =true;
+							}
+							
 						}
 						else
 						{
@@ -803,7 +822,7 @@ public class Server {
 			int serverPort = 9997; // the server port
 			ServerSocket listenSocket = new ServerSocket(serverPort);
 			
-			while(x <2) 
+			while(x <4) 
 			{
 				System.out.println ("ThreadID " + Thread.currentThread().getId() + " Waiting for a conection ");
 
