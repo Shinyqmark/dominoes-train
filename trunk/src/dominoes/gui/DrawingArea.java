@@ -28,6 +28,7 @@ public class DrawingArea extends JPanel  {
 	int yMax=y+height;
 	int xDraw=0;
 	int yDraw=0;
+	int totalPlayers=0;
 	ZRectangle [][] zrectArray = new ZRectangle[9][10];
 	Dominoe [] playerChips = new Dominoe[100];
 	Hashtable <Integer, Integer> positions= new Hashtable <Integer, Integer> () ;
@@ -39,15 +40,15 @@ public class DrawingArea extends JPanel  {
 	private String imgFileName = "images/"+ i + "_" + j + ".png";//fichaDomino_2.png";
 	private static boolean moveDone=false;
 
-	public DrawingArea (){
+	public DrawingArea (int _totalPlayers){
 		MovingAdapter ma = new MovingAdapter();
-
+		this.totalPlayers=_totalPlayers;
 		addMouseMotionListener(ma);
 		addMouseListener(ma);
 
 		int newy=y;
 		int newx=x;
-		for (int i=0; i<9; i++){
+		for (int i=0; i<totalPlayers+1; i++){
 			newx=x;
 			for (int j=0; j< 10; j++)
 			{
@@ -96,8 +97,10 @@ public class DrawingArea extends JPanel  {
 	@Override public void paintComponent(Graphics g) {
 		super.paintComponent(g);    // paints background
 		g.setColor(Color.white);
+		g.clearRect(x-10, y, weith, height);
 		g.fillRect(x-10,y,weith,height);
 		g.fillRect(x-10,0,weith,100);
+		
 		int newy=y;
 		int newx=x;
 		Graphics2D g2d = (Graphics2D) g;
@@ -106,8 +109,12 @@ public class DrawingArea extends JPanel  {
 
 		// draw gameboard
 		g2d.setColor(Color.gray);
-		for (int i=0; i<9; i++){
+		for (int i=0; i<totalPlayers+1; i++){
 			newx=x;
+			if(ClientInterface.currentTurtn ==i)
+				g2d.setColor(Color.green);
+			else 
+				g2d.setColor(Color.gray);
 			for (int j=0; j< 10; j++)
 			{
 				//	 zrectArray[i*j]=new ZRectangle(newx, newy, 90, 45);;
@@ -135,6 +142,7 @@ public class DrawingArea extends JPanel  {
 			{
 				transform = new AffineTransform();
 				transform.translate(playerChips[playChips.get(i)].x, playerChips[playChips.get(i)].y);
+				
 				g2d.drawImage(playerChips[playChips.get(i)].getImg(), transform, this);	
 			}
 	
@@ -147,7 +155,15 @@ public class DrawingArea extends JPanel  {
 			for (int j=0; j<stackTemp[i].size(); j++)
 			{
 				transform = new AffineTransform();
+	
 				transform.translate(playerChips[stackTemp[i].get(j)].x, playerChips[stackTemp[i].get(j)].y);
+	
+				if(playerChips[stackTemp[i].get(j)].isShift())
+				{
+		//			System.out.println("Imagen con shift");
+					transform.rotate(Math.toRadians(180), playerChips[stackTemp[i].get(j)].width/2, playerChips[stackTemp[i].get(j)].height/2 );
+				}
+			//	System.out.println("Coloreando ficha : "+ i + "_" + j);
 				g2d.drawImage(playerChips[stackTemp[i].get(j)].getImg(), transform, this);	
 			}
 		}
@@ -163,10 +179,12 @@ public class DrawingArea extends JPanel  {
 
 	}
 
-	public void updateBoard (int track, int chip, int position){
+	public void updateBoard (int track, int chip, int position, int isShift){
 		
 		playerChips[chip].setX(zrectArray[track][position-2].x);
 		playerChips[chip].setY(zrectArray[track][position-2].y);
+		if(isShift==1)
+			playerChips[chip].setIsShift(true);
 		repaint();
 	}
 	
@@ -246,6 +264,9 @@ public class DrawingArea extends JPanel  {
 		}
 	}
 
+	public void paintTurn(){
+		repaint();
+	}
 	class MovingAdapter extends MouseAdapter {
 
 		private int x;
@@ -283,30 +304,37 @@ public class DrawingArea extends JPanel  {
 						if (zrectArray[i][j].isHit(x, y)) {
 								System.out.println("Zrect number " + i + "," + j + " is Hit. In " + x +"," + y + "Dominochip x/y" + zrectArray[i][j].x + "/" + zrectArray[i][j].y);
 								
-								int valid=ClientInterface.player.validateChip(i, ChipSelected);
-								if(ChipSelected>=0 && ClientInterface.player.validateTrack(i) &&  valid!=1 )
+								
+								if(ChipSelected>=0 && ClientInterface.player.validateTrack(i))
 								{
-									playerChips[ChipSelected].setX(zrectArray[i][j].x);
-									playerChips[ChipSelected].setY(zrectArray[i][j].y);
-									int chipPos=playerChips[ChipSelected].getPositionNumber();
-									playerChips[ChipSelected].setPositionNumber(-1);
-									positionFree[chipPos]=true;
-									repaint();
+									int valid=ClientInterface.player.validateChip(i, ChipSelected);
+									if(valid !=1 )
+									{
+										playerChips[ChipSelected].setX(zrectArray[i][j].x);
+										playerChips[ChipSelected].setY(zrectArray[i][j].y);
+										int chipPos=playerChips[ChipSelected].getPositionNumber();
+										playerChips[ChipSelected].setPositionNumber(-1);
+										positionFree[chipPos]=true;
+										
+										if(valid==2)
+										{
+											playerChips[ChipSelected].setIsShift(true);
+											ClientInterface.player.setMsjTosend(i, ChipSelected, 1);
+										}else
+										{
+											playerChips[ChipSelected].setIsShift(false);
+											ClientInterface.player.setMsjTosend(i, ChipSelected, 0);
+										}
+										ClientInterface.player.cleadGameBoard();
+										repaint();
+										System.out.println("Mymove: " + ClientInterface.player.printChip(ChipSelected) + " TRack" + i);
+										//ClientInterface.player.updateGameBoard(i,ChipSelected);
+										ChipSelected=-1;
+										chipHit=true;
 									
-									if(valid==2)
-									{
-										ClientInterface.player.setMsjTosend(i, ChipSelected, 1);
-									}else
-									{
-										ClientInterface.player.setMsjTosend(i, ChipSelected, 0);
+										ClientInterface.moveDone=true;
 									}
 									
-									System.out.println("Mymove: " + ClientInterface.player.printChip(ChipSelected) + " TRack" + i);
-									//ClientInterface.player.updateGameBoard(i,ChipSelected);
-									ChipSelected=-1;
-									chipHit=true;
-								
-									ClientInterface.moveDone=true;
 								}
 								break;
 							}

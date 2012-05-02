@@ -433,5 +433,23 @@ public class PlayerUtils {
 	}
 	
 	
+	public void cleadGameBoard(){
+		
+		System.out.println (" >> cleadGameBoard () :");
+
+		for(int i=0; i<totalPlayers+1; i++)
+		{
+			System.out.print(" player : " + i + " SizeOfGameBoard : " + gameBoard[i].size() +" Chip : ");
+
+			if(gameBoard[i].size()>9)
+			{
+				int firsChip=gameBoard[i].pop();
+				gameBoard[i].clear();
+				gameBoard[i].push(firsChip);
+				printChips(gameBoard[i]);
+			}
+		}
+		
+	}
 	
 }
