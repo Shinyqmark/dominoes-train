@@ -175,27 +175,39 @@ public class Player {
 					if (playerNum != playTurn)
 					{
 
+						updateTrackAvailable (playerNum, trackAvailable);
+
 						if (playerChip != 999)
 						{
 							if (trackFromPlayer != playerNum)
 							{
 								System.out.println(" Player played in a different track.. update the proper variable ");
 								playerNum = trackFromPlayer;
-								updateShifted (playerNum, playerChip, isShifted);
 
 								
 							}
+							
+							//
+							// RJUA checar esto.. antes estaba dos lineas arriba dentro del if
+							//
+							updateShifted (playerNum, playerChip, isShifted);
+
+							
 							updateGameBoard(playerNum,playerChip);
 							System.out.println("update gameboard");
 						}
 						else
 						{
+						//	updateTrackAvailable (playerNum, trackAvailable);
+							
 							System.out.println(" no update due to chip 999 ");
 
 						}
 					}
 					else
 					{
+						updateTrackAvailable (playerNum, trackAvailable);
+
 						System.out.println("No need to update the gameboard since the broadcast comes from myself ");
 
 					}
@@ -214,6 +226,8 @@ public class Player {
 					
 					System.out.println(" Message recevied : playerId : "+playerNum + " player Chip: "+playerChip + " trackAvailable : " + trackAvailable +" trackFromPlayer : " +trackFromPlayer +" isShifted: "+isShifted);
 					
+					updateTrackAvailable (playerNum, trackAvailable);
+
 					if (playerChip != 999)
 					{
 						if (trackFromPlayer != playerNum)
@@ -221,13 +235,18 @@ public class Player {
 							System.out.println(" Player played in a different track.. update the proper variable and shifted ");
 							playerNum = trackFromPlayer;
 							
-							updateShifted (playerNum, playerChip, isShifted);
 							
 						}
+						//
+						// RJUA checar esto.. antes estaba dos lineas arriba dentro del if
+						//
+						updateShifted (playerNum, playerChip, isShifted);
+
 						updateGameBoard(playerNum,playerChip);
 					}
 					else
 					{
+					//	updateTrackAvailable (playerNum, trackAvailable);
 						System.out.println(" no update due to chip 999 ");
 
 					}
@@ -269,6 +288,13 @@ public class Player {
 			gameBoard[i]= new Stack <Integer>();
 		}
 		
+		TrainPerTrack = new boolean [totalPlayers];
+		for(int wc=0; wc<totalPlayers; wc++)
+		{
+			
+			TrainPerTrack[wc]= false;
+		}
+		
 		System.out.print("initGame : Chips " );
 
 		for(int j=0; j<chips.length; j++)
@@ -305,14 +331,41 @@ public class Player {
 		printGameBoard();
 		// repaint
 	}
+	public static void updateTrackAvailable (int playerId, int trackAvailable)
+	{
+		System.out.println("updateTrackAvailable :  playerId: "+playerId + "trackAvailable: "+ trackAvailable);
+
+		if (playerId != totalPlayers)
+		{
+			if (trackAvailable == 1)
+			{
+				System.out.println("updateTrackAvailable : setting to true");
+
+				TrainPerTrack[playerId]=true;
+	
+			}
+			else
+			{
+				System.out.println("updateTrackAvailable : setting to false");
+
+				TrainPerTrack[playerId]=false;
+	
+			}
+		}
+		else
+		{
+			System.out.println("updateTrackAvailable : no need to update the global tack");
+
+		}
+	}
 
 	public static void updateSelfChips(int chip){
-		System.out.println("updateSelfChips :  chip: "+chip );
+		//System.out.println("updateSelfChips :  chip: "+chip );
 
 		myChips.add(chip);
 		
 		//TODO borrar esta linea
-		printChips(myChips);
+		//printChips(myChips);
 		// repaint
 	}
 
@@ -327,16 +380,14 @@ public class Player {
 		gameBoard[trail].pop();
 		myChips.add(myChip);
 		
-		//TODO borrar esta linea
-		printChips(myChips);
-
+		
 		//repaint
 	}
 
 	public static String playRound() throws IOException{
 		// player#_chip_trail_chipsTail
 		int selectedChip;
-		String selectedTrail;
+		String selectedTrail="";
 		String PlayMsj;
 		int returnValid =-1;
 
@@ -349,10 +400,32 @@ public class Player {
 		System.out.println(" ");
 
 		printGameBoard();
+		boolean validTrail = false;
 
-		System.out.println("Select the trail to play");
+		while (!validTrail)
+		{
+			System.out.println("Select the trail to play");
 		
-		selectedTrail=in.readLine();
+			selectedTrail=in.readLine();
+			
+			int trail = Integer.parseInt(selectedTrail);
+			
+			//
+			// a valid track is 
+			//  the player track
+			// global track
+			// any track with "trenecito"
+			//
+			if ( trail == playTurn  || trail == totalPlayers || TrainPerTrack [trail]==true)
+			{
+				validTrail = true;
+			}
+			else
+			{
+				System.out.println(" wrong trail.. choose the proper one ");
+				
+			}
+		}
 		
 		printChips(gameBoard[Integer.parseInt(selectedTrail)]);
 		
@@ -388,6 +461,9 @@ public class Player {
 		{
 			selectedChip=myChips.remove(selectedChip);
 			PlayMsj="player"+ playTurn+ "_"+selectedChip+"_"+selectedTrail+"_"+myChips.size();
+			
+			updateTrackAvailable (playTurn, 0);
+
 
 		}
 		
@@ -415,11 +491,7 @@ public class Player {
 		
 		System.out.println("updateShifted: player: "+player + " chip: " + chip + " shifted : " + shifted );
 
-		//int lastChip=gameBoard[player].pop();
 		
-		//getDominoesPlayerPosition(Dominoes, chip);
-		// getDominoesPlayerPositionFromStack(gameBoard[player], chip); 
-		//DominoeChip lastChip=Dominoes.get(chip);
 		DominoeChip lastChip = getDominoeFromId(chip);
 		if (lastChip == null)
 		{
@@ -533,7 +605,7 @@ public class Player {
 
 	public static void printChips(Vector <Integer> myChips)
 	{
-		System.out.print("printChips Vector : ");
+		//System.out.print("printChips Vector : ");
 
 		for(int i=0; i<myChips.size(); i++)
 		{
@@ -561,7 +633,7 @@ public class Player {
 	
 	public static void printChips(Stack <Integer> myChips)
 	{
-		System.out.print("printChips Stack : ");
+		//System.out.print("printChips Stack : ");
 		
 		for(int i=0; i<myChips.size(); i++)
 		{
@@ -590,14 +662,25 @@ public class Player {
 	}
 
 	public static void printGameBoard(){
-		System.out.println (" >> printGameBoard () :");
+		//System.out.println (" >> printGameBoard () :");
 
 		//
 		// again .. totalPlayer +1 because it includes the global track available for all the players
 		// 
 		for(int i=0; i<totalPlayers+1; i++)
 		{
-			System.out.print(" player : " + i + " SizeOfGameBoard : " + gameBoard[i].size() +" Chip : ");
+			//
+			//  this just displays the "trenecito" for now... just mark the track 
+			//  btw this is just foir the players.. not the global
+			//
+			if (i <totalPlayers)
+			{
+				if (TrainPerTrack[i]==true)
+				{
+					System.out.print (" >> ");
+				}
+			}
+			System.out.print(" player: " + i + " SizeOfBoard: " + gameBoard[i].size() +" Chip: ");
 
 			for(int j=0; j< gameBoard[i].size(); j++)
 			{
