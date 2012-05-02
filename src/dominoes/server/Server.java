@@ -822,7 +822,7 @@ public class Server {
 			int serverPort = 9997; // the server port
 			ServerSocket listenSocket = new ServerSocket(serverPort);
 			
-			while(x <4) 
+			while(x <2) 
 			{
 				System.out.println ("ThreadID " + Thread.currentThread().getId() + " Waiting for a conection ");
 

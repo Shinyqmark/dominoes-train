@@ -71,7 +71,7 @@ public class ClientInterface extends JFrame implements ActionListener {
 	public ClientInterface (){
 		super("Dominoes");
 		Socket s = null;
-		int serverPort = 7896;
+		int serverPort = 9997;
 		String data;
 		String playMsj;
 		player=new PlayerUtils();

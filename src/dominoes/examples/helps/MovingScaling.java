@@ -42,7 +42,7 @@ public class MovingScaling extends JPanel {
 
         setDoubleBuffered(true);
         
-        fichaD= new Dominoe (0,0,imgFileName,this);
+        fichaD= new Dominoe (0,0,imgFileName,this,0);
         this.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
     }
 
