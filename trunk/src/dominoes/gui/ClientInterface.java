@@ -1,9 +1,7 @@
 package dominoes.gui;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,6 +12,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Stack;
+
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -47,8 +46,6 @@ public class ClientInterface extends JFrame implements ActionListener {
 	public static ArrayList <DominoeChip> Dominoes ;
 	private DataInputStream in;
 	private DataOutputStream out;
-	private static String playerName="Arianne";
-	private static String startPlaymsj="startplay_"+ playerName;
 	public static String ErrorInvalidChip="ERROR_InvalidChip";
 	public static String ErrorSkipTurn="OK_Skip";
 	public static String ErrorEmptyChip="ERROR_EmptyChip";
@@ -64,7 +61,6 @@ public class ClientInterface extends JFrame implements ActionListener {
 	JTextField [] playersChipsCound;
 	JTextField RemainingChips;
 	public static int currentTurtn;
-	private boolean myTurn=false;
 	public static boolean TrainPerTrack [] = null; 
 	
 	
@@ -123,7 +119,7 @@ public class ClientInterface extends JFrame implements ActionListener {
 				{
 					System.out.println ("ThreadID " + Thread.currentThread().getId() + " I'm the one with the initial chip... delete it from my bucket" );
 
-					int z = player.getDominoesPlayerPosition (playerChip);
+					player.removeDominoesPlayerPosition (playerChip);
 				
 				}
 			}

@@ -46,26 +46,32 @@ public class DrawingArea extends JPanel  {
 	private static boolean moveDone=false;
 
 	public DrawingArea (int _totalPlayers, int _IdPlayer){
-		MovingAdapter ma = new MovingAdapter();
+
 		this.totalPlayers=_totalPlayers;
 		this.idPlayer=_IdPlayer;
-		addMouseMotionListener(ma);
-		addMouseListener(ma);
-
 		int newy=y;
 		int newx=x;
+		int cont=0;
+		
+		Vector <Integer> playChips= ClientInterface.player.getMyChips();
+		
+	
+		MovingAdapter ma = new MovingAdapter();
+		addMouseMotionListener(ma);
+		addMouseListener(ma);
+		initPositions();
+	
 		for (int i=0; i<totalPlayers+1; i++){
 			newx=x;
 			for (int j=0; j< totalSpaces; j++)
 			{
 				zrectArray[i][j]=new ZRectangle(newx, newy, 85, 43);
-				//	 g.fillRect(newx,newy,90,45);
 				newx=newx+95;
 			}
 			newy=newy+55;
 		}
 
-		int cont=0;
+
 		for(int i=0; i<=12; i++)
 		{
 			for(int j=i; j<=12; j++)
@@ -79,14 +85,10 @@ public class DrawingArea extends JPanel  {
 				cont++;
 			}
 		}
-		
-	
-		initPositions();
-		Vector <Integer> playChips= ClientInterface.player.getMyChips();
+
 		for(int i=0; i<playChips.size(); i++)
 		{
 			playerChips[playChips.get(i)].setPositionNumber(i);
-		//	playerChips[playChips.get(i)].setX(10+(i*80)); positions
 			playerChips[playChips.get(i)].setX(positions.get(i));
 			if(i%2==0)
 			{
@@ -97,6 +99,11 @@ public class DrawingArea extends JPanel  {
 			}
 			positionFree[i]=false;
 		}
+		
+		
+
+	
+		
 		
 	}
 
@@ -163,23 +170,40 @@ public class DrawingArea extends JPanel  {
 	
 		}
 
-		
 		Stack<Integer>[] stackTemp=ClientInterface.player.getGameBoard();
+		
+		for(int i=0; i<stackTemp.length; i++)
+		{
+			if(ClientInterface.player.cleanGameBoard(i))
+				
+			{
+				System.out.println("Cleaning track " + i);
+				int firstChip=ClientInterface.player.getTopChipFromtrack(i);
+				playerChips[firstChip].setX(zrectArray[i][0].x);
+				playerChips[firstChip].setY(zrectArray[i][0].y);
+			}
+		}
+	
+	
 		for(int i=0; i<stackTemp.length; i++ )
 		{
 			for (int j=0; j<stackTemp[i].size(); j++)
 			{
-				transform = new AffineTransform();
-	
-				transform.translate(playerChips[stackTemp[i].get(j)].x, playerChips[stackTemp[i].get(j)].y);
-	
-				if(playerChips[stackTemp[i].get(j)].isShift())
+				
+				if(stackTemp[i].get(j)!=ClientInterface.player.getFisrtChip())
 				{
-		//			System.out.println("Imagen con shift");
-					transform.rotate(Math.toRadians(180), playerChips[stackTemp[i].get(j)].width/2, playerChips[stackTemp[i].get(j)].height/2 );
+					transform = new AffineTransform();
+		
+					transform.translate(playerChips[stackTemp[i].get(j)].x, playerChips[stackTemp[i].get(j)].y);
+		
+					if(playerChips[stackTemp[i].get(j)].isShift())
+					{
+			//			System.out.println("Imagen con shift");
+						transform.rotate(Math.toRadians(180), playerChips[stackTemp[i].get(j)].width/2, playerChips[stackTemp[i].get(j)].height/2 );
+					}
+				//	System.out.println("Coloreando ficha : "+ i + "_" + j);
+					g2d.drawImage(playerChips[stackTemp[i].get(j)].getImg(), transform, this);
 				}
-			//	System.out.println("Coloreando ficha : "+ i + "_" + j);
-				g2d.drawImage(playerChips[stackTemp[i].get(j)].getImg(), transform, this);	
 			}
 		}
 		
@@ -335,10 +359,11 @@ public class DrawingArea extends JPanel  {
 				x = e.getX();
 				y = e.getY();
 				boolean chipHit=false;
-				for(int i=0; i<zrectArray.length; i++ )
+				for(int i=0; i<totalPlayers+1; i++ )
 					for(int j=0; j<totalSpaces; j++)
 					{
-						if (zrectArray[i][j].isHit(x, y) &&  zrectArray[i][j].isFree()) {
+						
+						if (zrectArray[i][j].isHit(x, y) ) {
 								System.out.println("Zrect number " + i + "," + j + " is Hit. In " + x +"," + y + "Dominochip x/y" + zrectArray[i][j].x + "/" + zrectArray[i][j].y);
 								
 								
@@ -362,11 +387,17 @@ public class DrawingArea extends JPanel  {
 											playerChips[ChipSelected].setIsShift(false);
 											ClientInterface.player.setMsjTosend(i, ChipSelected, 0);
 										}
-										ClientInterface.player.clearGameBoard();
+//										if(ClientInterface.player.cleanGameBoard(i))
+//										{
+//											int firstChip=ClientInterface.player.getTopChipFromtrack(i);
+//											playerChips[firstChip].setX(zrectArray[i][0].x);
+//											playerChips[firstChip].setY(zrectArray[i][0].y);
+//										}
 										repaint();
 										zrectArray[i][j].setFree(false);
 										System.out.println("Mymove: " + ClientInterface.player.printChip(ChipSelected) + " TRack" + i);
 										//ClientInterface.player.updateGameBoard(i,ChipSelected);
+										ClientInterface.player.removeDominoesPlayerPosition (ChipSelected);
 										ChipSelected=-1;
 										chipHit=true;
 									

@@ -1,8 +1,6 @@
 package dominoes.client;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -15,10 +13,6 @@ public class PlayerUtils {
 
 	
 	public ArrayList <DominoeChip> Dominoes ;
-	private DataInputStream in;
-	private DataOutputStream out;
-	private static String playerName="Arianne";
-	private  String startPlaymsj="startplay_"+ playerName;
 	private int playTurn;
 	private int fisrtChip;
 	private int totalPlayers;
@@ -41,6 +35,7 @@ public class PlayerUtils {
 		
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void initGame(String data){
 
 		String [] initMsj=data.split("_");
@@ -267,8 +262,7 @@ public class PlayerUtils {
 
 
 	public void printChips(Vector <Integer> myChips){
-		String aux="";
-		
+
 		for(int i=0; i<myChips.size(); i++){
 			//aux.concat(str)
 			System.out.print(i +":" +printChip(myChips.get(i)) + " , ");
@@ -428,7 +422,7 @@ public class PlayerUtils {
 		this.msjTosend = "player"+ this.playTurn+ "_"+999+"_"+this.playTurn+"_"+myChips.size()+"_"+0;
 	}
 	
-	public int getDominoesPlayerPosition (int chipId)
+	public int removeDominoesPlayerPosition (int chipId)
 	{
 		int position =-1;
 		
@@ -446,23 +440,25 @@ public class PlayerUtils {
 	}
 	
 	
-	public void clearGameBoard(){
+	public boolean cleanGameBoard(int track){
 		
 		System.out.println (" >> cleadGameBoard () :");
-
-		for(int i=0; i<totalPlayers+1; i++)
-		{
-			System.out.print(" player : " + i + " SizeOfGameBoard : " + gameBoard[i].size() +" Chip : ");
-
-			if(gameBoard[i].size()>13)
-			{
-				int firsChip=gameBoard[i].pop();
-				gameBoard[i].clear();
-				gameBoard[i].push(firsChip);
-				printChips(gameBoard[i]);
-			}
-		}
+		boolean iscleaned=false;
 		
+//		for(int i=0; i<totalPlayers+1; i++)
+//		{
+//			System.out.print(" player : " + i + " SizeOfGameBoard : " + gameBoard[i].size() +" Chip : ");
+
+			if(gameBoard[track].size()>13)
+			{
+				int firsChip=gameBoard[track].pop();
+				gameBoard[track].clear();
+				gameBoard[track].push(firsChip);
+				printChips(gameBoard[track]);
+				iscleaned=true;
+			}
+	//	}
+		return iscleaned;
 	}
 	
 	
