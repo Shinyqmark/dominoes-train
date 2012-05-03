@@ -64,6 +64,10 @@ public class ClientInterface extends JFrame implements ActionListener {
 	JTextField [] playersChipsCound;
 	JTextField RemainingChips;
 	public static int currentTurtn;
+	private boolean myTurn=false;
+	public static boolean TrainPerTrack [] = null; 
+	
+	
 	public static void main(String[] args) {
 
 		new ClientInterface ();
@@ -161,8 +165,11 @@ public class ClientInterface extends JFrame implements ActionListener {
 				{
 					if(playMsj.contains("ping"+ player.getPlayTurn() ))
 					{
-						currentTurtn=player.getPlayTurn();
+					//	myTurn=true;
+						gameboarddraw.setMyTurn(true);
 						gameboarddraw.paintTurn();
+						currentTurtn=player.getPlayTurn();
+						
 						System.out.println ("ThreadID " + Thread.currentThread().getId() + "we just got a ping message... let's start working ! ");
 
 						player.printGameBoard();
@@ -219,6 +226,8 @@ public class ClientInterface extends JFrame implements ActionListener {
 							}
 
 						}while(!replyMsj.contains(OKchip) );
+						gameboarddraw.setMyTurn(false);
+						gameboarddraw.paintTurn();
 					}
 						
 					
@@ -248,16 +257,18 @@ public class ClientInterface extends JFrame implements ActionListener {
 					if (playerNum !=  player.getPlayTurn())
 					{
 
+						player.updateTrackAvailable (playerNum, trackAvailable);
 						if (playerChip != 999)
 						{
 							if (trackFromPlayer != playerNum)
 							{
 								System.out.println(" Player played in a different track.. update the proper variable ");
 								playerNum = trackFromPlayer;
-								player.updateShifted (playerNum, playerChip, isShifted);
+								
 
 								
 							}
+							player.updateShifted (playerNum, playerChip, isShifted);
 							player.updateGameBoard(playerNum,playerChip);
 							System.out.println("update gameboard");
 						}
@@ -269,6 +280,8 @@ public class ClientInterface extends JFrame implements ActionListener {
 					}
 					else
 					{
+						player.updateTrackAvailable (playerNum, trackAvailable);
+						
 						System.out.println("No need to update the gameboard since the broadcast comes from myself ");
 
 					}
@@ -290,6 +303,8 @@ public class ClientInterface extends JFrame implements ActionListener {
 					
 					System.out.println(" Message recevied : playerId : "+playerNum + " player Chip: "+playerChip + " trackAvailable : " + trackAvailable +" trackFromPlayer : " +trackFromPlayer +" isShifted: "+isShifted);
 					
+					player.updateTrackAvailable (playerNum, trackAvailable);
+					
 					if (playerChip != 999)
 					{
 						if (trackFromPlayer != playerNum)
@@ -297,9 +312,12 @@ public class ClientInterface extends JFrame implements ActionListener {
 							System.out.println(" Player played in a different track.. update the proper variable and shifted ");
 							playerNum = trackFromPlayer;
 							
-							player.updateShifted (playerNum, playerChip, isShifted);
+							
 							
 						}
+						
+						player.updateShifted (playerNum, playerChip, isShifted);
+						
 						int stackSize=player.updateGameBoard(playerNum,playerChip);
 						gameboarddraw.updateBoard(playerNum,playerChip,stackSize, isShifted);
 					}
@@ -346,7 +364,7 @@ public class ClientInterface extends JFrame implements ActionListener {
 
 		JPanel board = new JPanel();
 
-		gameboarddraw= new DrawingArea (player.getTotalPlayers());
+		gameboarddraw= new DrawingArea (player.getTotalPlayers(), player.getPlayTurn());
 		board.setPreferredSize(new Dimension(400, 100));
 
 		board.add(gameboarddraw);

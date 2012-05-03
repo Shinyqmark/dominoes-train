@@ -1,19 +1,14 @@
 package dominoes.gui;
 
 
-import java.awt.TexturePaint;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 
 class ZRectangle extends Rectangle2D.Float {
 
 	public int x;
 	public int y;
+	private boolean isFree=true;
 
     public ZRectangle(int x, int y, float width, float height) {
         this.x=x;
@@ -44,4 +39,15 @@ class ZRectangle extends Rectangle2D.Float {
     public void addHeight(float h) {
         this.height += h;
     }
+    
+
+	public boolean isFree() {
+		return isFree;
+	}
+
+
+
+	public void setFree(boolean isFree) {
+		this.isFree = isFree;
+	}
 }

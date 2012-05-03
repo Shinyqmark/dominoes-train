@@ -34,6 +34,8 @@ public class PlayerUtils {
 	int isValid=0;
 	static int noValid=1;
 	int validAndShifed=2;
+	public boolean TrainPerTrack [] = null; 
+	
 	
 	public PlayerUtils (){
 		
@@ -52,6 +54,13 @@ public class PlayerUtils {
 		for(int i=0; i<totalPlayers+1; i++)
 		{
 			gameBoard[i]= new Stack <Integer>();
+		}
+		
+		TrainPerTrack = new boolean [totalPlayers];
+		for(int wc=0; wc<totalPlayers; wc++)
+		{
+			
+			TrainPerTrack[wc]= false;
 		}
 		
 		System.out.print("initGame : Chips " );
@@ -384,14 +393,18 @@ public class PlayerUtils {
 	
 	public boolean validateTrack(int track){
 		
-		if(track != playTurn &&  track != totalPlayers) // falta agregar lo del trenecito
+		if(track == playTurn ||  track == totalPlayers || TrainPerTrack [track]==true) // falta agregar lo del trenecito
 			
-			{
-			System.out.println("Not a valid Track");
-			return false;
-			}
+		{
+			return true;
+		}
+		else
+		{
+			System.out.println(" wrong trail.. choose the proper one ");
+			
+		}
 		
-		return true;
+		return false;
 	}
 
 	public Stack<Integer>[] getGameBoard() {
@@ -433,7 +446,7 @@ public class PlayerUtils {
 	}
 	
 	
-	public void cleadGameBoard(){
+	public void clearGameBoard(){
 		
 		System.out.println (" >> cleadGameBoard () :");
 
@@ -441,7 +454,7 @@ public class PlayerUtils {
 		{
 			System.out.print(" player : " + i + " SizeOfGameBoard : " + gameBoard[i].size() +" Chip : ");
 
-			if(gameBoard[i].size()>9)
+			if(gameBoard[i].size()>13)
 			{
 				int firsChip=gameBoard[i].pop();
 				gameBoard[i].clear();
@@ -450,6 +463,44 @@ public class PlayerUtils {
 			}
 		}
 		
+	}
+	
+	
+	public void updateTrackAvailable (int playerId, int trackAvailable)
+	{
+		System.out.println("updateTrackAvailable :  playerId: "+playerId + "trackAvailable: "+ trackAvailable);
+
+		if (playerId != totalPlayers)
+		{
+			if (trackAvailable == 1)
+			{
+				System.out.println("updateTrackAvailable : setting to true");
+
+				TrainPerTrack[playerId]=true;
+	
+			}
+			else
+			{
+				System.out.println("updateTrackAvailable : setting to false");
+
+				TrainPerTrack[playerId]=false;
+	
+			}
+		}
+		else
+		{
+			System.out.println("updateTrackAvailable : no need to update the global tack");
+
+		}
+	}
+
+	
+	public boolean[] getTrainPerTrack() {
+		return TrainPerTrack;
+	}
+
+	public void setTrainPerTrack(boolean[] trainPerTrack) {
+		TrainPerTrack = trainPerTrack;
 	}
 	
 }
