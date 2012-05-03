@@ -14,7 +14,7 @@ public class Dominoe  {
 	public int width;
 	public int height;
 	Image img;
-	private boolean isShift=true;
+	private boolean isShift=false;
 	int positionNumber;
 
 
