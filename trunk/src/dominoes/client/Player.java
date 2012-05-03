@@ -41,7 +41,7 @@ public class Player {
 		int serverPort = 9996;
 		String data;
 		String playMsj;
-		generateInitalSetDominoes(6);
+		generateInitalSetDominoes(12);
 		
 		try {
 			s = new Socket("localhost", serverPort);
