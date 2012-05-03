@@ -28,14 +28,54 @@ public class Server {
 	public Server()
 	{
 		Dominoes = null;
-		MaxChipsPerPlayer=7;
+		MaxChipsPerPlayer=0;
 		maxPlayers = -1;
 	}
+	public void setMaxChipsPerPlayer (int numPlayers)
+	{
+	
+		int x = getMaxChips(numPlayers);
+		MaxChipsPerPlayer = x;
+	}
+	
 	public void setMaxPlayers(int players)
 	{
 		maxPlayers = players;
 	}
 	
+	public int getMaxChips (int numPlayers)
+	{
+		int numChips = 7 ;
+		
+		if (numPlayers == 2 || numPlayers ==3 )
+		{
+			numChips = 16;
+		}
+		else if (numPlayers == 4)
+		{
+			numChips = 15;
+		}
+		else if (numPlayers == 5)
+		{
+			numChips = 14;
+		}
+		else if (numPlayers == 6)
+		{
+			numChips = 12;
+		}
+		else if (numPlayers == 7)
+		{
+			numChips = 10;
+		}
+		else if (numPlayers == 8)
+		{
+			numChips = 9;
+		}
+		
+		System.out.println ("ThreadID " + Thread.currentThread().getId() + " getMaxChips : numPlayers: " + numPlayers + " numChips per player : " +numChips);
+
+		return numChips;
+	}
 	public static int getFreeChip (int playerId)
 	{
 		//int chip = -1;
@@ -526,9 +566,7 @@ public class Server {
 				} catch (InterruptedException e1) {e1.printStackTrace();}
 			}
 			
-			//
-			// TODO : se necesita saber cuantos jugadores hay ..
-			// 
+		
 			System.out.println ("ThreadID " + Thread.currentThread().getId() + " Player name : " + idPlayer + " After wait ");
 
 			
@@ -547,10 +585,7 @@ public class Server {
 			
 			Server.communication.sendMessage(reply, idPlayer);
 
-	/*		try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {e.printStackTrace();} 
-			*/
+	
 			
 			System.out.println ("ThreadID " + Thread.currentThread().getId() + "  Set to isReady now ");
 
@@ -563,8 +598,8 @@ public class Server {
 			boolean needsToWait = true;
 			boolean noMoreChips = false;
 			boolean repeatMula = false;
-			
-			while (true)
+			boolean gameRunning = true ; 
+			while (gameRunning)
 			{
 				noMoreChips = false;
 				
@@ -617,6 +652,17 @@ public class Server {
 					if (needsToWait== true || repeatMula)
 					{
 						Server.communication.sendMessage(msg, idPlayer);
+						
+						//
+						// This is because with "mula" should be able to repeat the play even though player does not have a chip
+						//
+						
+						if (repeatMula == true)
+						{
+							System.out.println ("ThreadID " + Thread.currentThread().getId() + "  mula flag is TRUE.. setting needsToWait back to true" );
+							needsToWait = true;
+
+						}
 						repeatMula=false;
 					}
 					msgFromPlayer = Server.communication.receiveMessage(idPlayer);
@@ -718,6 +764,13 @@ public class Server {
 						
 						try {
 							Server.communication.broadCast(playMsj);
+							if (DominoesPlayer.size() ==0)
+							{
+								String gameMsg = "GAMEOVER" ;
+								Server.communication.broadCast(gameMsg);
+								gameRunning =false;
+
+							}
 						} catch (IOException e) {e.printStackTrace();}
 
 
@@ -834,28 +887,44 @@ public class Server {
 		int maxPlayers = 0;
 		int x = 0;
 		Server server = new Server();
+		//
+		// TODO change this 
+		//
 		server.generateInitalSetDominoes(6);
 		ArrayList <Server_player> players  = new ArrayList<Server_player> ();
 		
+		//
+		// for now wait 10 seconds... but in ms for now..
+		// why 10? why not?
+		//
+		int maxTimeWait = 10 * 1000;
+	
 		
 
 		try{
-			int serverPort = 9997; // the server port
+			int serverPort = 9996; // the server port
 			ServerSocket listenSocket = new ServerSocket(serverPort);
 			
-			while(x <4) 
+			listenSocket.setSoTimeout(maxTimeWait);
+			
+			while( x <8   ) 
 			{
 				System.out.println ("ThreadID " + Thread.currentThread().getId() + " Waiting for a conection ");
+				Socket clientSocket = null;
+				
+				try
+				{
+					clientSocket = listenSocket.accept();			
+					Server.communication.addConnection(clientSocket);
+					Server_player temp = new Server_player(x);
+					players.add(temp);
+					new Thread (temp).start();
+				}catch(IOException e) {
+					
+					System.out.println("Listen socket : TIMEOUT ");
+					break;
+					}
 
-				Socket clientSocket = listenSocket.accept();
-				
-				Server.communication.addConnection(clientSocket);
-				Server_player temp = new Server_player(x);
-				players.add(temp);
-				new Thread (temp).start();
-				//players.add(new Server_player(x));
-				//new Thread (players.get(x)).start();
-				
 				x++;
 			}
 		} catch(IOException e) {System.out.println("Listen socket:"+e.getMessage());}
@@ -865,6 +934,10 @@ public class Server {
 		server.TrainPerTrack = new boolean [maxPlayers];
 		server.Track = new Stack[maxPlayers+1];
 		server.setMaxPlayers(maxPlayers);
+		
+		// TODO change this
+		//server.setMaxChipsPerPlayer(maxPlayers);
+		server.MaxChipsPerPlayer = 7;
 		
 		for (int wx = 0 ; wx < maxPlayers ; wx ++)
 		{

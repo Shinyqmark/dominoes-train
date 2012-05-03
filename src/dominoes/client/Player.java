@@ -38,7 +38,7 @@ public class Player {
 
 	public static void main (String args[]) {
 		Socket s = null;
-		int serverPort = 9997;
+		int serverPort = 9996;
 		String data;
 		String playMsj;
 		generateInitalSetDominoes(6);
@@ -106,8 +106,12 @@ public class Player {
 
 				System.out.println("Msg received from Server : " + playMsj);
 
+				if (playMsj.contains ("GAMEOVER"))
+				{
+					System.out.println(" Game Over  ---  Exit now  " );
 
-				if(playMsj.contains("ping" + playTurn ))
+				}
+				else if(playMsj.contains("ping" + playTurn ))
 				{
 					System.out.println ("ThreadID " + Thread.currentThread().getId() + " we just got a ping message... let's start working ! ");
 
@@ -219,6 +223,7 @@ public class Player {
 					String [] broadCastmsj=playMsj.split("_");
 					int playerNum=Integer.parseInt(broadCastmsj[0].substring(6, 7));
 					int playerChip=Integer.parseInt(broadCastmsj[1]);
+					int remainingChips = Integer.parseInt(broadCastmsj[2]);
 					int trackAvailable = Integer.parseInt(broadCastmsj[4]);
 					int trackFromPlayer = Integer.parseInt(broadCastmsj[5]);
 					int isShifted = Integer.parseInt(broadCastmsj[6]);
@@ -226,6 +231,11 @@ public class Player {
 					
 					System.out.println(" Message recevied : playerId : "+playerNum + " player Chip: "+playerChip + " trackAvailable : " + trackAvailable +" trackFromPlayer : " +trackFromPlayer +" isShifted: "+isShifted);
 					
+					if (remainingChips ==0 )
+					{
+						System.out.println("  playerId : "+playerNum + " WON !!! ");
+
+					}
 					updateTrackAvailable (playerNum, trackAvailable);
 
 					if (playerChip != 999)
