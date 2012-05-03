@@ -14,10 +14,8 @@ public class Dominoe  {
 	public int width;
 	public int height;
 	Image img;
-	private boolean isShift=false;
+	private boolean isShift=true;
 	int positionNumber;
-	
-
 
 
 	private String imgFileName; //= "images/fichaDomino_1.png"; 
@@ -114,6 +112,9 @@ public class Dominoe  {
 	public void setPositionNumber(int positionNumber) {
 		this.positionNumber = positionNumber;
 	}
+
+
+
 
 
 }

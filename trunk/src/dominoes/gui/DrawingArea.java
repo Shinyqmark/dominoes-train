@@ -20,19 +20,24 @@ public class DrawingArea extends JPanel  {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	int weith=1100;
+	int weith=1270;
 	int height=500;
-	int x=10;
+	int x=0;
 	int y=100;
 	int xMax=x+weith;
 	int yMax=y+height;
 	int xDraw=0;
 	int yDraw=0;
 	int totalPlayers=0;
-	ZRectangle [][] zrectArray = new ZRectangle[9][10];
+	boolean myTurn=false;
+	int totalSpaces=13;
+	int idPlayer=0;
+	
+	ZRectangle [][] zrectArray = new ZRectangle[9][totalSpaces];
 	Dominoe [] playerChips = new Dominoe[100];
 	Hashtable <Integer, Integer> positions= new Hashtable <Integer, Integer> () ;
-	boolean [] positionFree = new boolean [24];
+	boolean [] positionFree = new boolean [28];
+	private boolean TrainPerTrack []; 
 	
 	ZRectangle zrect;
 	String i="0";
@@ -40,9 +45,10 @@ public class DrawingArea extends JPanel  {
 	private String imgFileName = "images/"+ i + "_" + j + ".png";//fichaDomino_2.png";
 	private static boolean moveDone=false;
 
-	public DrawingArea (int _totalPlayers){
+	public DrawingArea (int _totalPlayers, int _IdPlayer){
 		MovingAdapter ma = new MovingAdapter();
 		this.totalPlayers=_totalPlayers;
+		this.idPlayer=_IdPlayer;
 		addMouseMotionListener(ma);
 		addMouseListener(ma);
 
@@ -50,11 +56,11 @@ public class DrawingArea extends JPanel  {
 		int newx=x;
 		for (int i=0; i<totalPlayers+1; i++){
 			newx=x;
-			for (int j=0; j< 10; j++)
+			for (int j=0; j< totalSpaces; j++)
 			{
-				zrectArray[i][j]=new ZRectangle(newx, newy, 85, 45);
+				zrectArray[i][j]=new ZRectangle(newx, newy, 85, 43);
 				//	 g.fillRect(newx,newy,90,45);
-				newx=newx+110;
+				newx=newx+95;
 			}
 			newy=newy+55;
 		}
@@ -97,9 +103,9 @@ public class DrawingArea extends JPanel  {
 	@Override public void paintComponent(Graphics g) {
 		super.paintComponent(g);    // paints background
 		g.setColor(Color.white);
-		g.clearRect(x-10, y, weith, height);
-		g.fillRect(x-10,y,weith,height);
-		g.fillRect(x-10,0,weith,100);
+		g.clearRect(x, y, weith, height);
+		g.fillRect(x,y,weith,height);
+		g.fillRect(x,0,weith,100);
 		
 		int newy=y;
 		int newx=x;
@@ -109,18 +115,27 @@ public class DrawingArea extends JPanel  {
 
 		// draw gameboard
 		g2d.setColor(Color.gray);
+		TrainPerTrack=ClientInterface.player.getTrainPerTrack();
+		boolean trackwithTrain=false;
 		for (int i=0; i<totalPlayers+1; i++){
 			newx=x;
-			if(ClientInterface.currentTurtn ==i)
-				g2d.setColor(Color.green);
+			trackwithTrain=false;
+			if(i<totalPlayers && TrainPerTrack[i]==true)
+				trackwithTrain=true;
+			if((ClientInterface.currentTurtn ==i && myTurn) || (i==totalPlayers  && myTurn) || (trackwithTrain && myTurn))
+			{
+				
+				g2d.setColor(Color.blue);
+			}
+				
 			else 
 				g2d.setColor(Color.gray);
-			for (int j=0; j< 10; j++)
+			for (int j=0; j< totalSpaces; j++)
 			{
-				//	 zrectArray[i*j]=new ZRectangle(newx, newy, 90, 45);;
+
 				g2d.fill( zrectArray[i][j]);
-				//	 g.fillRect(newx,newy,90,45);
-				newx=newx+110;
+
+				newx=newx+105;
 			}
 			newy=newy+55;
 		}
@@ -170,14 +185,22 @@ public class DrawingArea extends JPanel  {
 		
 		
 		//draw Initial chip
+		g.setColor(Color.DARK_GRAY);
+		g.fillRect(1165,40,95,50);
+		
 		int fisrtChip=ClientInterface.player.getFisrtChip();
-		playerChips[fisrtChip].setX(1000);
+		playerChips[fisrtChip].setX(1170);
 		playerChips[fisrtChip].setY(45);
 		transform = new AffineTransform();
 		transform.translate(playerChips[fisrtChip].x, playerChips[fisrtChip].y);
 		g2d.drawImage(playerChips[fisrtChip].getImg(), transform, this);	
 
 	}
+
+	
+	
+	
+
 
 	public void updateBoard (int track, int chip, int position, int isShift){
 		
@@ -242,7 +265,8 @@ public class DrawingArea extends JPanel  {
 		positions.put(20, 900);
 		positions.put(22, 990);
 		positions.put(24, 1080);
-		
+		positions.put(26, 1170);
+
 		positions.put(1, 0);
 		positions.put(3, 90);
 		positions.put(5, 180);
@@ -255,8 +279,10 @@ public class DrawingArea extends JPanel  {
 		positions.put(19, 810);
 		positions.put(21, 900);
 		positions.put(23, 990);
+		positions.put(25, 1080);
+		positions.put(27, 1170);
 
-
+	
 		
 		for (int i=0; i< positionFree.length; i++)
 		{
@@ -267,6 +293,17 @@ public class DrawingArea extends JPanel  {
 	public void paintTurn(){
 		repaint();
 	}
+	
+	public boolean isMyTurn() {
+		return myTurn;
+	}
+
+	public void setMyTurn(boolean myTurn) {
+		this.myTurn = myTurn;
+	}
+
+
+
 	class MovingAdapter extends MouseAdapter {
 
 		private int x;
@@ -299,13 +336,13 @@ public class DrawingArea extends JPanel  {
 				y = e.getY();
 				boolean chipHit=false;
 				for(int i=0; i<zrectArray.length; i++ )
-					for(int j=0; j<10; j++)
+					for(int j=0; j<totalSpaces; j++)
 					{
-						if (zrectArray[i][j].isHit(x, y)) {
+						if (zrectArray[i][j].isHit(x, y) &&  zrectArray[i][j].isFree()) {
 								System.out.println("Zrect number " + i + "," + j + " is Hit. In " + x +"," + y + "Dominochip x/y" + zrectArray[i][j].x + "/" + zrectArray[i][j].y);
 								
 								
-								if(ChipSelected>=0 && ClientInterface.player.validateTrack(i))
+								if(ChipSelected>=0 && ClientInterface.player.validateTrack(i) && myTurn ==true)
 								{
 									int valid=ClientInterface.player.validateChip(i, ChipSelected);
 									if(valid !=1 )
@@ -325,8 +362,9 @@ public class DrawingArea extends JPanel  {
 											playerChips[ChipSelected].setIsShift(false);
 											ClientInterface.player.setMsjTosend(i, ChipSelected, 0);
 										}
-										ClientInterface.player.cleadGameBoard();
+										ClientInterface.player.clearGameBoard();
 										repaint();
+										zrectArray[i][j].setFree(false);
 										System.out.println("Mymove: " + ClientInterface.player.printChip(ChipSelected) + " TRack" + i);
 										//ClientInterface.player.updateGameBoard(i,ChipSelected);
 										ChipSelected=-1;
