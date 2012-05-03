@@ -890,7 +890,7 @@ public class Server {
 		//
 		// TODO change this 
 		//
-		server.generateInitalSetDominoes(6);
+		server.generateInitalSetDominoes(12);
 		ArrayList <Server_player> players  = new ArrayList<Server_player> ();
 		
 		//
@@ -935,9 +935,8 @@ public class Server {
 		server.Track = new Stack[maxPlayers+1];
 		server.setMaxPlayers(maxPlayers);
 		
-		// TODO change this
-		//server.setMaxChipsPerPlayer(maxPlayers);
-		server.MaxChipsPerPlayer = 7;
+		server.setMaxChipsPerPlayer(maxPlayers);
+		//server.MaxChipsPerPlayer = 7;
 		
 		for (int wx = 0 ; wx < maxPlayers ; wx ++)
 		{
@@ -1027,13 +1026,14 @@ public class Server {
 		//server.printFreeChips();
 	//	server.printDominoeList();
 		int initialChip = server.getInitialChip();
+		System.out.println ("ThreadID " + Thread.currentThread().getId() + " Initial chip : "+ initialChip );
+
 		if (initialChip==-1)
 		{
 			initialChip =0;
 		}
-		int playerMove = server.getPlayerWithChip(initialChip);
+		int playerMove = server.getPlayerWithChip(initialChip);	
 		DominoeChip initChip = server.getInitialChip(initialChip);
-		
 		server.initialChip = initialChip;
 		server.setChipInAllTracks(initChip);
 
