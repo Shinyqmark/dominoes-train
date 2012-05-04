@@ -21,6 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -72,7 +73,7 @@ public class ClientInterface extends JFrame implements ActionListener {
 	public ClientInterface (){
 		super("Dominoes");
 		Socket s = null;
-		int serverPort = 7896;
+		int serverPort = 9996;
 		String data;
 		String playMsj="";
 		player=new PlayerUtils();
@@ -153,11 +154,16 @@ public class ClientInterface extends JFrame implements ActionListener {
 				DrawCont=0;
 				drawButton.setEnabled(true);
 			//	playMsj=in.readUTF();
-
+				
 				System.out.println("Msg received from Server : " + playMsj);
 
+				if (playMsj.contains ("GAMEOVER"))
+				{
+					System.out.println(" Game Over  ---  Exit now  " );
 
-				if(playMsj.contains("ping"))
+				}
+				
+				else if(playMsj.contains("ping"))
 				{
 					if(playMsj.contains("ping"+ player.getPlayTurn() ))
 					{
@@ -245,6 +251,14 @@ public class ClientInterface extends JFrame implements ActionListener {
 
 					playersChipsCound[playerNum].setText(remainingChips+"");
 					RemainingChips.setText(globalRemainingChips+"");
+					
+					
+					if (remainingChips ==0 )
+					{
+						System.out.println("  playerId : "+playerNum + " WON !!! ");
+						JOptionPane.showMessageDialog(this, "  playerId : "+playerNum + " WON !!! ");
+					}
+					
 					// play game & No need to update gameboard
 					System.out.println(" Received broadCast : playerId : "+playerNum + " player Chip: "+playerChip + " trackAvailable : " + trackAvailable + " trackFromPlayer : " +trackFromPlayer +" isShifted: "+isShifted);
 					//
@@ -297,6 +311,12 @@ public class ClientInterface extends JFrame implements ActionListener {
 					playersChipsCound[playerNum].setText(remainingChips+"");
 					RemainingChips.setText(globalRemainingChips+"");
 					
+					if (remainingChips ==0 )
+					{
+						System.out.println("  playerId : "+playerNum + " WON !!! ");
+						JOptionPane.showMessageDialog(this, "  playerId : "+playerNum + " WON !!! ");
+					}
+					
 					System.out.println(" Message recevied : playerId : "+playerNum + " player Chip: "+playerChip + " trackAvailable : " + trackAvailable +" trackFromPlayer : " +trackFromPlayer +" isShifted: "+isShifted);
 					
 					player.updateTrackAvailable (playerNum, trackAvailable);
@@ -325,7 +345,7 @@ public class ClientInterface extends JFrame implements ActionListener {
 					
 				}
 			//	playMsj=in.readUTF();
-				Thread.sleep(1000);
+				Thread.sleep(900);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -415,6 +435,9 @@ public class ClientInterface extends JFrame implements ActionListener {
 		playersBar.add(Title);
 		for(int i=0; i<=gamePlayers; i++){
 			JLabel aux=new JLabel("Player" + i);
+			if(i==player.getTotalPlayers()){
+				aux.setText("Mex_Train");
+			}
 			playersChipsCound[i]=new JTextField("");
 			aux.setPreferredSize(new Dimension(80, 10));
 			playersChipsCound[i].setSize(new Dimension(80, 15));

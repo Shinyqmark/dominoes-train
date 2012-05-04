@@ -49,8 +49,8 @@ public class DrawingArea extends JPanel  {
 
 		this.totalPlayers=_totalPlayers;
 		this.idPlayer=_IdPlayer;
-		int newy=y;
-		int newx=x;
+		int newy=y+5;
+		int newx=x+20;
 		int cont=0;
 		
 		Vector <Integer> playChips= ClientInterface.player.getMyChips();
@@ -62,7 +62,7 @@ public class DrawingArea extends JPanel  {
 		initPositions();
 	
 		for (int i=0; i<totalPlayers+1; i++){
-			newx=x;
+			newx=x+20;
 			for (int j=0; j< totalSpaces; j++)
 			{
 				zrectArray[i][j]=new ZRectangle(newx, newy, 85, 43);
@@ -109,9 +109,10 @@ public class DrawingArea extends JPanel  {
 
 	@Override public void paintComponent(Graphics g) {
 		super.paintComponent(g);    // paints background
-		g.setColor(Color.white);
+		g.setColor(Color.LIGHT_GRAY);
 		g.clearRect(x, y, weith, height);
 		g.fillRect(x,y,weith,height);
+		g.setColor(Color.white);
 		g.fillRect(x,0,weith,100);
 		
 		int newy=y;
@@ -121,7 +122,7 @@ public class DrawingArea extends JPanel  {
 
 
 		// draw gameboard
-		g2d.setColor(Color.gray);
+		g2d.setColor(Color.white);
 		TrainPerTrack=ClientInterface.player.getTrainPerTrack();
 		boolean trackwithTrain=false;
 		for (int i=0; i<totalPlayers+1; i++){
@@ -136,7 +137,7 @@ public class DrawingArea extends JPanel  {
 			}
 				
 			else 
-				g2d.setColor(Color.gray);
+				g2d.setColor(Color.white);
 			for (int j=0; j< totalSpaces; j++)
 			{
 
@@ -154,6 +155,23 @@ public class DrawingArea extends JPanel  {
 				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
 
+		Stack<Integer>[] stackTemp=ClientInterface.player.getGameBoard();
+		
+		for(int i=0; i<stackTemp.length; i++)
+		{
+			if(ClientInterface.player.cleanGameBoard(i))
+				
+			{
+				System.out.println("Cleaning track " + i);
+				int firstChip=ClientInterface.player.getTopChipFromtrack(i);
+				playerChips[firstChip].setX(zrectArray[i][0].x);
+				playerChips[firstChip].setY(zrectArray[i][0].y);
+			}
+		}
+	
+		
+		
+		
 		// draw chip images
 		AffineTransform transform = new AffineTransform();  // identity transform
 		Vector <Integer> playChips= ClientInterface.player.getMyChips();
@@ -170,20 +188,7 @@ public class DrawingArea extends JPanel  {
 	
 		}
 
-		Stack<Integer>[] stackTemp=ClientInterface.player.getGameBoard();
-		
-		for(int i=0; i<stackTemp.length; i++)
-		{
-			if(ClientInterface.player.cleanGameBoard(i))
-				
-			{
-				System.out.println("Cleaning track " + i);
-				int firstChip=ClientInterface.player.getTopChipFromtrack(i);
-				playerChips[firstChip].setX(zrectArray[i][0].x);
-				playerChips[firstChip].setY(zrectArray[i][0].y);
-			}
-		}
-	
+
 	
 		for(int i=0; i<stackTemp.length; i++ )
 		{
@@ -209,8 +214,8 @@ public class DrawingArea extends JPanel  {
 		
 		
 		//draw Initial chip
-		g.setColor(Color.DARK_GRAY);
-		g.fillRect(1165,40,95,50);
+		g.setColor(Color.blue);
+		g.fillRect(1165,40,95,55);
 		
 		int fisrtChip=ClientInterface.player.getFisrtChip();
 		playerChips[fisrtChip].setX(1170);
