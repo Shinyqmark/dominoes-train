@@ -442,7 +442,7 @@ public class PlayerUtils {
 	
 	public boolean cleanGameBoard(int track){
 		
-		System.out.println (" >> cleadGameBoard () :");
+	
 		boolean iscleaned=false;
 		
 //		for(int i=0; i<totalPlayers+1; i++)
@@ -451,9 +451,13 @@ public class PlayerUtils {
 
 			if(gameBoard[track].size()>13)
 			{
+				System.out.println (" >> cleadGameBoard () :");
+				System.out.println (" Before :");
+				printChips(gameBoard[track]);
 				int firsChip=gameBoard[track].pop();
 				gameBoard[track].clear();
 				gameBoard[track].push(firsChip);
+				System.out.println (" After :");
 				printChips(gameBoard[track]);
 				iscleaned=true;
 			}
